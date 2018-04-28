@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {{template "meta.html"}}
 
-    <title>Post - {{.post.Title}}</title>
+    <title>Post - {{.article.Title}}</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="/static/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -102,14 +102,14 @@
         <div class="col-sm-10 col-sm-offset-1">
             <article class="markdown-body">
                 <!-- Title -->
-                 <h1>{{.post.Title}}</h1>
+                 <h1>{{.article.Title}}</h1>
 
                 <!-- display article info -->
                 <div>
                     <!-- show tags -->
                     <tr th:each="tag : ${article.tags}">
                         {{/*{{range $key,$value := .post.Tags}}*/}}
-                        <a href="/tag/{{.post.CategoryID}}" class="btn btn-default btn-sm">
+                        <a href="/tag/{{.article.CategoryID}}" class="btn btn-default btn-sm">
                             <span class="glyphicon glyphicon-tag"></span><span th:text="' ' + ${tag.name}"> {{.category.Name}}</span>
                         </a>
                         {{/*{{end}}*/}}
@@ -117,7 +117,7 @@
 
                     <!-- display article created time -->
                     <span class="createdTime">
-                        <span class="glyphicon glyphicon-calendar"></span>{{dateFormat .post.CreatedAt "06-01-02 15:04"}}
+                        <span class="glyphicon glyphicon-calendar"></span>{{dateFormat .article.CreatedAt "06-01-02 15:04"}}
                     </span>
 
                     <span class="createdTime">
@@ -128,7 +128,7 @@
                 <br/>
 
                 <!-- display aritcle body -->
-                <div id="body">{{.post.Content}}</div>
+                <div id="body">{{.article.Content}}</div>
 
             </article>
 
@@ -160,7 +160,7 @@
             {{else}}
                 <div id="messagebox" class="alert alert-danger" style="display: none;" role="alert"></div>
             <form id="commentForm" role="form" action="/visitor/new_comment" method="post">
-                <input name="postId" type="hidden" value="{{.post.ID}}">
+                <input name="postId" type="hidden" value="{{.article.ID}}">
                 <div class="form-group">
                     <textarea name="content" class="form-control" id="inputContent" placeholder="评论"></textarea>
                 </div>

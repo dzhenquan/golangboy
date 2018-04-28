@@ -40,3 +40,13 @@ func GetPageById(id string) (*Page, error) {
 	err = DB.First(&page, "id = ?", pid).Error
 	return &page, err
 }
+
+func GetPageCountByUserId(userID uint64) uint64 {
+
+	var pageCount uint64
+
+	row := DB.Raw("select count(*) from page where user_id = ?", userID).Row()
+	row.Scan(&pageCount)
+
+	return pageCount
+}

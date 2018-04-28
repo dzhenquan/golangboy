@@ -23,7 +23,7 @@ func AdminArticleGet(c *gin.Context) {
 		//err = article.Update()
 
 		c.HTML(http.StatusOK, "post/display.html", gin.H{
-			"post": article,
+			"article": article,
 			"category": category,
 			"user": user,
 		})
@@ -44,7 +44,6 @@ func AdminArticleIndex(c *gin.Context) {
 		fmt.Println("userEmail:", userInter.Email)
 
 		var comments []string
-		comments = append(comments, "nihao","haodehen")
 
 		// Find Article By UserId
 		var articles []*model.Article
@@ -67,7 +66,7 @@ func AdminArticleIndex(c *gin.Context) {
 		}
 
 		c.HTML(http.StatusOK, "admin/post.html", gin.H{
-			"posts":    articles,
+			"articles":    articles,
 			"Active":   "posts",
 			"user":     user,
 			"comments": comments,
@@ -131,7 +130,7 @@ func AdminCreatePost(c *gin.Context) {
 			c.Redirect(http.StatusMovedPermanently, "/admin/post")
 		} else {
 			c.HTML(http.StatusOK, "post/new.html", gin.H{
-				"post":    article,
+				"article":    article,
 				"message": err.Error(),
 			})
 		}
@@ -196,7 +195,7 @@ func AdminUpdateArticle(c *gin.Context) {
 				return
 			} else {
 				c.HTML(http.StatusOK, "post/modify.html", gin.H{
-					"post": article,
+					"article": article,
 					"message": err.Error(),
 				})
 			}

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Wblog | Log in</title>
+    <title>GolangBoy | 登录</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.3.7 -->
@@ -31,30 +31,30 @@
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-        <a href="/"><b>W</b>blog</a>
+        <a href="/">GolangBoy</a>
     </div>
     <!-- /.login-logo -->
     <div class="login-box-body">
         {{if not .message}}
-        <p class="login-box-msg">Sign in to start your session</p>
+        <p class="login-box-msg">Welcome to Sign GolangBoy</p>
         {{else}}
         <p class="login-box-msg text-danger">{{.message}}</p>
         {{end}}
 
         <form action="" method="post">
             <div class="form-group has-feedback">
-                <input type="email" name="username" class="form-control" placeholder="Email">
+                <input type="email" name="useremail" class="form-control" placeholder="登录邮箱">
                 <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
             </div>
             <div class="form-group has-feedback">
-                <input type="password" name="password" class="form-control" placeholder="Password">
+                <input type="password" name="password" class="form-control" placeholder="登录密码">
                 <span class="glyphicon glyphicon-lock form-control-feedback"></span>
             </div>
             <div class="row">
                 <div class="col-xs-8">
                     <div class="checkbox icheck">
                         <label>
-                            <input type="checkbox"> Remember Me
+                            <input type="checkbox"> 记住我
                         </label>
                     </div>
                 </div>
@@ -66,16 +66,15 @@
             </div>
         </form>
 
-        {{/*<div class="social-auth-links text-center">*/}}
-            {{/*<p>- OR -</p>*/}}
-            {{/*<a href="/auth/github" class="btn btn-block btn-social btn-github btn-flat"><i class="fa fa-github"></i> Sign in using*/}}
-                {{/*Github</a>*/}}
-        {{/*</div>*/}}
+        <div class="social-auth-links text-center"><hr></div>
         <!-- /.social-auth-links -->
-
-        <a href="#">忘记密码</a><br>
-        <a href="/signup" class="text-center">注册</a>
-
+        <div class="col-xs-8 text-left">
+            <a href="#">忘记密码</a>
+        </div>
+        <div class="col-xs-4 text-right">
+            <a href="/signup" class="text-center">免费注册</a>
+        </div>
+        <br>
     </div>
     <!-- /.login-box-body -->
 </div>

@@ -29,7 +29,8 @@ func initJSON() {
 		os.Exit(-1)
 	}
 
-	fmt.Println("json: ", jsonData)
+	return
+	//fmt.Println("json: ", jsonData)
 }
 
 

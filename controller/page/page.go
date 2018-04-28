@@ -45,10 +45,11 @@ func AdminPageIndex(c *gin.Context) {
 		defer rows.Close()
 
 		if err == nil {
-			var page model.Page
 			var pages []*model.Page
 
 			for rows.Next() {
+				var page model.Page
+
 				model.DB.ScanRows(rows, &page)
 				pages = append(pages, &page)
 			}

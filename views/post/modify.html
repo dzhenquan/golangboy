@@ -159,11 +159,11 @@
         <!-- add a new tag -->
         <span id="tagBug">
             <button class="btn btn-default btn-sm tagButton">
-                <a href="/tag/{{.post.Category.ID}}">{{.post.Category.Name}}</a>
+                <a href="/tag/{{.article.Category.ID}}">{{.article.Category.Name}}</a>
                 <a class="removeArticleTag" href="#" onclick="deleteTag(this);">
                     <span class="glyphicon glyphicon glyphicon-trash"></span>
                 </a>
-                <span class="tagId" hidden="hidden">{{.post.Category.ID}}</span>
+                <span class="tagId" hidden="hidden">{{.article.Category.ID}}</span>
                 </button>&nbsp;
             <span style="border: none" id="addTag" class="glyphicon glyphicon-edit"></span>
             <a id="postSave" class="glyphicon glyphicon-saved"
@@ -171,12 +171,12 @@
         </span><br/><br/>
 
         <!-- create or update a article -->
-        <form action="/admin/post/{{.post.ID}}/edit" method="post" id="postForm" class="form-group">
+        <form action="/admin/post/{{.article.ID}}/edit" method="post" id="postForm" class="form-group">
             <input id="tags" name="tags" type="hidden">
-            <input name="title" type="text" class="form-control" placeholder="Title" value="{{.post.Title}}"/><br/>
-            <textarea id="demo" name="body">{{.post.Content}}</textarea><br/>
+            <input name="title" type="text" class="form-control" placeholder="Title" value="{{.article.Title}}"/><br/>
+            <textarea id="demo" name="body">{{.article.Content}}</textarea><br/>
             <div class="bootstrap-switch-small">
-                <input id="switchbtn" name="isPublished" type="checkbox" {{if .post.IsPublished}}checked{{end}} />
+                <input id="switchbtn" name="isPublished" type="checkbox" {{if .article.IsPublished}}checked{{end}} />
             </div>
         </form>
     </div>

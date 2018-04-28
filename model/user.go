@@ -12,13 +12,13 @@ import (
 // User Table
 type User struct {
     BaseModel
+    UserName    string                                      //昵称
     Email       string  `gorm:"unique_index;default:null"`  //邮箱
     Telephone   string  `gorm:"unique_index;default:null"`  //手机号码
     Password    string  `gorm:"default:null"`               //密码
     VerifyState string  `gorm:"default:'0'"`                //邮箱验证状态
     IsAdmin     bool                                        //是否是管理员
     AvatarUrl   string                                      //头像链接
-    NickName    string                                      //昵称
     LockState   bool    `gorm:"default:'0'"`                //锁定状态
 
 }
@@ -48,6 +48,12 @@ func (user User) EncryptPassword(password, salt string) (hash string) {
     hash = salt + password + config.ServerConfig.PassSalt
     hash = salt + fmt.Sprintf("%x", md5.Sum([]byte(hash)))
     return
+}
+
+
+// User Insert
+func (user *User) Insert() error {
+    return DB.Create(&user).Error
 }
 
 // Lock User 锁定用户

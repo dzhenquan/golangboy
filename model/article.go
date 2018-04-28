@@ -1,6 +1,8 @@
 package model
 
-import "strconv"
+import (
+	"strconv"
+)
 
 // Table Article
 type Article struct {
@@ -42,4 +44,15 @@ func GetArticleById(id string) (*Article, error) {
 	var article Article
 	err = DB.First(&article, "id = ?", pid).Error
 	return &article, err
+}
+
+
+func GetArticleCountByUserId(userID uint64) uint64 {
+
+	var articleCount uint64
+
+	row := DB.Raw("select count(*) from article where user_id = ?", userID).Row()
+	row.Scan(&articleCount)
+
+	return articleCount
 }

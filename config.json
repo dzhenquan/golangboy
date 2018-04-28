@@ -1,7 +1,7 @@
 {
   "database": {
     "Dialect"      : "mysql",
-    "Database"     : "DBlog",
+    "Database"     : "GolangBoy",
     "User"	       : "root",
     "Password"     : "123456",
     "Charset"      : "utf8mb4",  /*要支持emoji的话，填 utf8mb4 */
