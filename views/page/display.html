@@ -1,22 +1,37 @@
 {{define "page/display.html"}}
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <title>GolangBoy - {{.page.Title}}</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.7 -->
+    <link rel="stylesheet" href="/static/libs/bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/static/libs/font-awesome/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="/static/libs/Ionicons/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/static/libs/AdminLTE/css/AdminLTE.min.css">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="/static/libs/AdminLTE/css/skins/_all-skins.min.css">
 
-    <title>Page - {{.page.Title}}</title>
+    <link rel="stylesheet" href="/static/libs/sdtheme/css/sdtheme.css">
+    <link rel="stylesheet" href="/static/libs/plugins/bootstrap-fileinput-jasny/bootstrap-fileinput.css">
+
+    <!-- Google Font -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
 
     <!-- Bootstrap Core CSS -->
-    <link href="/static/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+{{/*<link href="/static/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">*/}}
 
     <!-- Custom CSS -->
-    <link href="/static/css/blog-post.css" rel="stylesheet">
+{{/*<link href="/static/css/blog-post.css" rel="stylesheet">*/}}
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -31,6 +46,49 @@
     <!-- Bootstrap Core JavaScript -->
     <script src="/static/libs/bootstrap/js/bootstrap.min.js"></script>
 
+    <!-- font awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+    <!-- simplemde -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css" />
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
+    <!-- code syntax highlighting -->
+    <script src="https://cdn.jsdelivr.net/highlight.js/latest/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/highlight.js/latest/styles/github.min.css" />
+
+    <!-- x-editable (bootstrap version) -->
+    <link href="https://cdn.jsdelivr.net/npm/x-editable@1.5.1/dist/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/x-editable@1.5.1/dist/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+
+    <!-- InlineAttachment -->
+    <script src="/static/libs/InlineAttachment/inline-attachment.js"></script>
+    <script src="/static/libs/InlineAttachment/codemirror-4.inline-attachment.js"></script>
+
+    <!-- bootstrap-switch -->
+    <link href="/static/libs/bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet"/>
+    <script src="/static/libs/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+
+
+
+    <!-- Bootstrap Core CSS -->
+    {{/*<link href="/static/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">*/}}
+
+    <!-- Custom CSS -->
+    {{/*<link href="/static/css/blog-post.css" rel="stylesheet">*/}}
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <!--<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>-->
+    {{/*<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>*/}}
+    {{/*<![endif]-->*/}}
+
+    <!-- jQuery -->
+    {{/*<script src="/static/libs/jquery/jquery.min.js"></script>*/}}
+
+    <!-- Bootstrap Core JavaScript -->
+    {{/*<script src="/static/libs/bootstrap/js/bootstrap.min.js"></script>*/}}
+
     <!-- github markdown css -->
     <link rel="stylesheet" href="/static/css/markdown.css" />
 
@@ -43,6 +101,7 @@
     <script src="https://cdn.jsdelivr.net/highlight.js/latest/highlight.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/highlight.js/latest/styles/github.min.css" />
     <script>hljs.initHighlightingOnLoad();</script>
+
 
     <script>
         $(document).ready(function () {
@@ -85,32 +144,53 @@
 
 </head>
 
-<body>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+{{template "admin/navbar.html" .}}
+{{template "admin/sidebar.html" .}}
 
-{{template "navigation.html"}}
 
-<!-- Page Content -->
-<div class="container">
+    <!-- Content Header (Page header) -->
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                <small>页面查看</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="/admin/index"><i class="fa fa-dashboard"></i> Home</a></li>
+                <li class="active"><a href="#">页面查看</a></li>
+            </ol>
+        </section>
 
-    <div class="row">
+        <div class="container">
 
-        <!-- Blog Post Content Column -->
-        <div class="col-lg-10 col-lg-offset-1">
-            <article class="markdown-body">
-            <!-- page content-->
-            <div id="body">{{.page.Content}}</div>
-            </article>
+            <div class="row">
+
+                <!-- Blog Post Content Column -->
+                {{/*<div class="col-lg-10 col-lg-offset-1">*/}}
+                <div class="col-sm-offset-0 col-sm-10" style="background-color: white;">
+                    <article class="markdown-body">
+                        <!-- page content-->
+                        <div id="body">{{.page.Content}}</div>
+                    </article>
+                </div>
+            </div>
+            <!-- /.row -->
         </div>
-
+        <div style="height: 100px;"></div>
     </div>
-    <!-- /.row -->
+    <!-- ./wrapper -->
 
-</div>
-<!-- /.container -->
+    <!-- AdminLTE App -->
+    <script src="/static/libs/AdminLTE/js/adminlte.min.js"></script>
 
-{{template "footer.html"}}
+    <!-- AdminLTE for demo purposes -->
+    <script src="/static/libs/AdminLTE/js/demo.js"></script>
+
+    <!-- 图片上传插件 -->
+    <script src="/static/libs/plugins/bootstrap-fileinput-jasny/bootstrap-fileinput.js"></script>
+
 
 </body>
-
 </html>
 {{end}}

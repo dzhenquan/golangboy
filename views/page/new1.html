@@ -1,37 +1,22 @@
-{{define "page/modify.html"}}
+{{define "page/new1.html"}}
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>GolangBoy - 修改页面</title>
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <!-- Bootstrap 3.3.7 -->
-    <link rel="stylesheet" href="/static/libs/bootstrap/css/bootstrap.min.css">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="/static/libs/font-awesome/css/font-awesome.min.css">
-    <!-- Ionicons -->
-    <link rel="stylesheet" href="/static/libs/Ionicons/css/ionicons.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="/static/libs/AdminLTE/css/AdminLTE.min.css">
-    <!-- AdminLTE Skins. Choose a skin from the css/skins
-         folder instead of downloading all of them to reduce the load. -->
-    <link rel="stylesheet" href="/static/libs/AdminLTE/css/skins/_all-skins.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-    <link rel="stylesheet" href="/static/libs/sdtheme/css/sdtheme.css">
-    <link rel="stylesheet" href="/static/libs/plugins/bootstrap-fileinput-jasny/bootstrap-fileinput.css">
-
-    <!-- Google Font -->
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-
+    <title>Page - New</title>
 
     <!-- Bootstrap Core CSS -->
-{{/*<link href="/static/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">*/}}
+    <link href="/static/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-{{/*<link href="/static/css/blog-post.css" rel="stylesheet">*/}}
+    <link href="/static/css/blog-post.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -68,57 +53,6 @@
     <link href="/static/libs/bootstrap-switch/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet"/>
     <script src="/static/libs/bootstrap-switch/js/bootstrap-switch.min.js"></script>
 
-
-
-</head>
-
-<body class="hold-transition skin-blue sidebar-mini">
-<div class="wrapper">
-{{template "admin/navbar.html" .}}
-{{template "admin/sidebar.html" .}}
-
-
-    <!-- Content Header (Page header) -->
-    <div class="content-wrapper">
-        <section class="content-header">
-            <h1>
-                <small>页面修改</small>
-            </h1>
-            <ol class="breadcrumb">
-                <li><a href="/admin/index"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active"><a href="#">页面修改</a></li>
-            </ol>
-        </section>
-        <div class="container">
-            <br>
-
-            <div class="col-sm-offset-0 col-sm-10">
-
-                <!-- create or update a article -->
-                <form action="/admin/page/{{.page.ID}}/edit" method="post" id="pageForm" class="form-group">
-                    <input name="title" type="text" class="form-control" placeholder="Title" value="{{.page.Title}}"/><br/>
-                    <textarea id="demo" name="body">{{.page.Content}}</textarea><br/>
-                    <div class="bootstrap-switch-small">
-                        <input id="switchbtn" name="isPublished" type="checkbox" {{if .page.IsPublished}}checked{{end}} />
-                        <span>
-                            <a id="pageSave" class="btn btn-primary" style="float: right; padding-left: 15px;">提交</a>
-                        </span>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- ./wrapper -->
-
-    <!-- AdminLTE App -->
-    <script src="/static/libs/AdminLTE/js/adminlte.min.js"></script>
-
-    <!-- AdminLTE for demo purposes -->
-    <script src="/static/libs/AdminLTE/js/demo.js"></script>
-
-    <!-- 图片上传插件 -->
-    <script src="/static/libs/plugins/bootstrap-fileinput-jasny/bootstrap-fileinput.js"></script>
-
     <script>
         $(document).ready(function () {
             var simplemde = new SimpleMDE({
@@ -143,7 +77,7 @@
                 jsonFieldName:"url",
                 onFileUploadResponse: function(xhr) {
                     var result = JSON.parse(xhr.responseText),
-                            filename = result[this.settings.jsonFieldName];
+                        filename = result[this.settings.jsonFieldName];
 
                     if (result && filename) {
                         var newValue;
@@ -173,6 +107,39 @@
 
         });
     </script>
+
+</head>
+
+<body>
+
+{{template "navigation.html"}}
+
+<div class="container">
+
+    <div class="col-sm-offset-1 col-sm-10">
+
+        <!-- add a new tag -->
+        <span id="tagBug">
+
+            <a id="pageSave" class="glyphicon glyphicon-saved"
+               style="float: right; padding-left: 15px;"></a>
+        </span><br/><br/>
+
+        <!-- create or update a article -->
+        <form action="/admin/new_page" method="post" id="pageForm" class="form-group">
+            <input name="title" type="text" class="form-control" placeholder="Title"/><br/>
+            <textarea id="demo" name="body"></textarea><br/>
+            <div class="bootstrap-switch-small">
+                <input id="switchbtn" name="isPublished" type="checkbox"/>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+{{template "footer.html"}}
+
 </body>
+
 </html>
 {{end}}

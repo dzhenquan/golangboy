@@ -10,24 +10,50 @@ import (
 
 
 func AdminPageGet(c *gin.Context) {
-	id := c.Param("id")
 
-	page, err := model.GetPageById(id)
-	if err == nil && page.IsPublished {
-		page.View++
-		c.HTML(http.StatusOK, "page/display.html", gin.H{
-			"page": page,
-		})
-		return
-	} else {
-		c.HTML(http.StatusNotFound, "errors/error.html", gin.H{
-			"message": "Sorry,I lost myself!",
-		})
+	if user, exists := c.Get("user"); exists {
+
+		userInter := user.(model.User)
+
+		fmt.Println("userID: ", userInter.ID)
+		fmt.Println("userEmail: ", userInter.Email)
+
+		id := c.Param("id")
+
+		page, err := model.GetPageById(id)
+		if err == nil && page.IsPublished {
+			page.View++
+
+			var comments []string
+			c.HTML(http.StatusOK, "page/display.html", gin.H{
+				"user": user,
+				"page": page,
+				"comments": comments,
+			})
+			return
+		} else {
+			c.HTML(http.StatusNotFound, "errors/error.html", gin.H{
+				"message": "Sorry,I lost myself!",
+			})
+		}
 	}
 }
 
 func AdminCreatePageGet(c *gin.Context) {
-	c.HTML(http.StatusOK, "page/new.html", nil)
+
+	if user, exists := c.Get("user"); exists {
+
+		userInter := user.(model.User)
+
+		fmt.Println("userID: ", userInter.ID)
+		fmt.Println("userEmail:", userInter.Email)
+
+		var comments []string
+		c.HTML(http.StatusOK, "page/new.html", gin.H{
+			"user": user,
+			"comments": comments,
+		})
+	}
 }
 
 func AdminPageIndex(c *gin.Context) {
@@ -39,7 +65,6 @@ func AdminPageIndex(c *gin.Context) {
 		fmt.Println("userID: ", userInter.ID)
 		fmt.Println("userEmail: ", userInter.Email)
 		var comments []string
-		comments = append(comments, "nihao","haodehen","xiaodai")
 
 		rows, err := model.DB.Raw("select * from page where user_id = ?", userInter.ID).Rows()
 		defer rows.Close()
@@ -108,8 +133,12 @@ func AdminEditPage(c *gin.Context) {
 		id := c.Param("id")
 		page, err := model.GetPageById(id)
 		if err == nil {
+
+			var comments []string
 			c.HTML(http.StatusOK, "page/modify.html", gin.H{
+				"user": user,
 				"page": page,
+				"comments": comments,
 			})
 			return
 		} else {

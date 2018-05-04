@@ -10,30 +10,73 @@ import (
 )
 
 
-func AdminArticleGet(c *gin.Context) {
+func UserArticleIndexGet(c *gin.Context) {
 
-	id := c.Param("id")
-	article, _ := model.GetArticleById(id)
+	rows, err := model.DB.Raw("select * from article ORDER BY updated_at desc LIMIT 10").Rows()
+	if err == nil {
 
-	category, _ := model.GetCategoryById(article.CategoryID)
+		var articles []*model.Article
+		for rows.Next() {
+			var article model.Article
+			model.DB.ScanRows(rows, &article)
 
-	user, err := model.GetUserById(article.UserID)
-	if err == nil && article.IsPublished {
-		//article.IsPublished = !article.IsPublished
-		//err = article.Update()
+			if article.IsPublished {
 
-		c.HTML(http.StatusOK, "post/display.html", gin.H{
-			"article": article,
-			"category": category,
-			"user": user,
+				user, _ := model.GetUserById(article.UserID)
+				cate, _ := model.GetCategoryById(article.CategoryID)
+
+				article.User = *user
+				article.Category = *cate
+				articles = append(articles, &article)
+			}
+		}
+		c.HTML(http.StatusOK, "auth/index.html", gin.H{
+			"Articles": articles,
 		})
 		return
 	}
-	fmt.Println(err)
-	c.HTML(http.StatusNotFound, "errors/error.html", gin.H{
-		"message": "Sorry,I lost myself!",
+	defer rows.Close()
+
+	c.JSON(http.StatusOK, gin.H{
+		"succeed": false,
+		"message": err.Error(),
 	})
 	return
+}
+
+
+func AdminArticleGet(c *gin.Context) {
+	if user, exists := c.Get("user"); exists {
+		userInter := user.(model.User)
+
+		fmt.Println("userID:", userInter.ID)
+		fmt.Println("userEmail:", userInter.Email)
+
+		id := c.Param("id")
+		article, _ := model.GetArticleById(id)
+
+		category, _ := model.GetCategoryById(article.CategoryID)
+
+		user, err := model.GetUserById(article.UserID)
+		if err == nil && article.IsPublished {
+			//article.IsPublished = !article.IsPublished
+			//err = article.Update()
+			var comments []string
+
+			c.HTML(http.StatusOK, "post/display.html", gin.H{
+				"article": article,
+				"category": category,
+				"user": user,
+				"comments": comments,
+			})
+			return
+		}
+		fmt.Println(err)
+		c.HTML(http.StatusNotFound, "errors/error.html", gin.H{
+			"message": "Sorry,I lost myself!",
+		})
+		return
+	}
 }
 
 func AdminArticleIndex(c *gin.Context) {
@@ -93,7 +136,19 @@ func AdminArticleIndex(c *gin.Context) {
 }
 
 func AdminNewPostGet(c *gin.Context) {
-	c.HTML(http.StatusOK, "post/new.html", nil)
+
+	if user, exists := c.Get("user"); exists {
+
+		userInter := user.(model.User)
+		fmt.Println("userID:", userInter.ID)
+		fmt.Println("userEmail:", userInter.Email)
+
+		var comments []string
+		c.HTML(http.StatusOK, "post/new.html", gin.H{
+			"user": user,
+			"comments": comments,
+		})
+	}
 }
 
 func AdminCreatePost(c *gin.Context) {
@@ -115,10 +170,18 @@ func AdminCreatePost(c *gin.Context) {
 		fmt.Println("pubisted: ", published)
 		fmt.Println("body: ", body)
 
+		var desc string
+		if len(body) > 100 {
+			desc = body[:100]
+		} else {
+			desc = body
+		}
+
 		cateID, _ := strconv.ParseUint(tags, 10, 64)
 
 		article := model.Article{
 			Title: title,
+			Desc: desc,
 			Content: body,
 			UserID: userInter.ID,
 			CategoryID: cateID,
@@ -139,29 +202,40 @@ func AdminCreatePost(c *gin.Context) {
 
 
 func AdminEditGET(c *gin.Context) {
-	id := c.Param("id")
 
-	fmt.Println("id:", id)
+	if user, exists := c.Get("user"); exists {
 
-	var article model.Article
-	err := model.DB.Where("id = ?", id).First(&article).Error
-	if err == nil {
+		userInter := user.(model.User)
+		fmt.Println("userID:", userInter.ID)
+		fmt.Println("userEmail:", userInter.Email)
 
-		fmt.Println("cateID:", article.CategoryID)
-		//Find Article Category
-		err := model.DB.Where("id = ?", article.CategoryID).First(&article.Category).Error
+		id := c.Param("id")
+
+		fmt.Println("id:", id)
+
+		var article model.Article
+		err := model.DB.Where("id = ?", id).First(&article).Error
 		if err == nil {
-			fmt.Println("cateName:", article.Category.Name)
-			c.HTML(http.StatusOK, "post/modify.html", gin.H{
-				"post": article,
-			})
-			return
+
+			var comments []string
+			fmt.Println("cateID:", article.CategoryID)
+			//Find Article Category
+			err := model.DB.Where("id = ?", article.CategoryID).First(&article.Category).Error
+			if err == nil {
+				fmt.Println("cateName:", article.Category.Name)
+				c.HTML(http.StatusOK, "post/modify.html", gin.H{
+					"user": user,
+					"article": article,
+					"comments": comments,
+				})
+				return
+			}
 		}
+		c.HTML(http.StatusNotFound, "errors/error.html", gin.H{
+			"message": "Sorry,I lost myself!",
+		})
+		return
 	}
-	c.HTML(http.StatusNotFound, "errors/error.html", gin.H{
-		"message": "Sorry,I lost myself!",
-	})
-	return
 }
 
 func AdminUpdateArticle(c *gin.Context) {
@@ -189,6 +263,7 @@ func AdminUpdateArticle(c *gin.Context) {
 				IsPublished: published,
 			}
 			article.ID = pid
+
 			err = article.Update()
 			if err == nil {
 				c.Redirect(http.StatusMovedPermanently, "/admin/post")

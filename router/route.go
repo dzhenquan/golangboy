@@ -46,8 +46,12 @@ func Route(router *gin.Engine) {
 		api.GET("/logout", middleware.SigninRequired,
 			auth.UserSignout)
 
-		api.GET("/page/:id", page.AdminPageGet)
-		api.GET("/post/:id", article.AdminArticleGet)
+		api.GET("/", article.UserArticleIndexGet)
+
+		api.GET("/page/:id", middleware.SigninRequired,
+			page.AdminPageGet)
+		api.GET("/article/:id", middleware.SigninRequired,
+			article.AdminArticleGet)
 	}
 
 	adminAPI := router.Group("/admin", middleware.RefreshTokenCookie)
@@ -63,6 +67,10 @@ func Route(router *gin.Engine) {
 			auth.AdminUserIndexGet)
 		adminAPI.POST("/user/:id/lock", middleware.SigninRequired,
 			auth.AdminUserLock)
+
+		// Profile
+		adminAPI.GET("/profile", middleware.SigninRequired,
+			auth.AdminProfileGet)
 
 		// Category
 		adminAPI.POST("/new_tag", middleware.SigninRequired,
@@ -99,7 +107,8 @@ func Route(router *gin.Engine) {
 		// Article
 		adminAPI.GET("/post", middleware.SigninRequired,
 			article.AdminArticleIndex)
-		adminAPI.GET("/new_post", article.AdminNewPostGet)
+		adminAPI.GET("/new_post", middleware.SigninRequired,
+			article.AdminNewPostGet)
 		adminAPI.POST("/new_post", middleware.SigninRequired,
 			article.AdminCreatePost)
 		adminAPI.GET("/post/:id/edit", middleware.SigninRequired,

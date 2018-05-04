@@ -32,6 +32,7 @@ func (article *Article) Update() error {
 	return DB.Model(article).Updates(map[string]interface{}{
 		"title":        article.Title,
 		"content":         article.Content,
+		"category_id":	article.CategoryID,
 		"is_published": article.IsPublished,
 	}).Error
 }

@@ -14,6 +14,23 @@ import (
 )
 
 
+// Admin Profile
+func AdminProfileGet(c *gin.Context) {
+
+	if user, exists := c.Get("user"); exists {
+
+		userInetr := user.(model.User)
+
+		fmt.Println("userID:", userInetr.ID)
+		var comments []string
+
+		c.HTML(http.StatusOK, "admin/profile.html", gin.H{
+			"user":     user,
+			"comments": comments,
+		})
+	}
+}
+
 //	Admin SignIn Index Get 管理员登录
 func AdminSignIndexGet(c *gin.Context) {
 
