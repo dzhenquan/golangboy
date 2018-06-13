@@ -1,16 +1,17 @@
 package auth
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
-	"gin-blog/model"
-	"github.com/pkg/errors"
 	"fmt"
-	"strings"
-	"gin-blog/utils"
-	"github.com/dgrijalva/jwt-go"
-	"gin-blog/config"
 	"strconv"
+	"strings"
+	"net/http"
+	"errors"
+	"github.com/gin-gonic/gin"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/dzhenquan/golangboy/utils"
+	"github.com/dzhenquan/golangboy/model"
+	"github.com/dzhenquan/golangboy/config"
+	"path"
 )
 
 
@@ -19,32 +20,115 @@ func AdminProfileGet(c *gin.Context) {
 
 	if user, exists := c.Get("user"); exists {
 
-		userInetr := user.(model.User)
-
-		fmt.Println("userID:", userInetr.ID)
 		var comments []string
 
 		c.HTML(http.StatusOK, "admin/profile.html", gin.H{
-			"user":     user,
-			"comments": comments,
+			"user"		: user,
+			"comments"	: comments,
+		})
+	}
+}
+
+
+func AdminUploadImage(c *gin.Context) {
+	var avatarUrl string
+
+	if user, exists := c.Get("user"); exists {
+
+		userInter := user.(model.User)
+
+		file, err := c.FormFile("fileImageUrl")
+		if err == nil {
+
+			fileSuffix 	:= path.Ext(file.Filename)
+			userID 		:= fmt.Sprintf("%d", userInter.ID)
+			dstDir 		:= config.ServerConfig.UploadImgDir + userID + fileSuffix
+			avatarUrl 	= "/static/upload/"  + userID + fileSuffix
+
+			err = c.SaveUploadedFile(file, dstDir)
+			if err != nil {
+				c.JSON(http.StatusOK, gin.H{
+					"succeed": false,
+				})
+				return
+			}
+		} else {
+			avatarUrl = ""
+		}
+
+		newUser := &model.User{
+			AvatarUrl: avatarUrl,
+		}
+		newUser.ID = userInter.ID
+
+		err = newUser.UpdateImage()
+
+		c.JSON(http.StatusOK, gin.H{
+			"succeed": err==nil,
+		})
+	}
+}
+
+func AdminUpdateUserInfo(c *gin.Context) {
+
+	if user, exists := c.Get("user"); exists {
+
+		userInter := user.(model.User)
+
+		realName	:= c.PostForm("RealName")
+		mobile 		:= c.PostForm("Mobile")
+		userName 	:= c.PostForm("UserName")
+
+		newUser := &model.User{
+			RealName	: realName,
+			UserName	: userName,
+			Telephone	: mobile,
+		}
+		newUser.ID = userInter.ID
+
+		err := newUser.UpdateUserInfo()
+
+		c.JSON(http.StatusOK, gin.H{
+			"succeed": err==nil,
+		})
+	}
+}
+
+func AdminUpdateUserPwd(c *gin.Context) {
+
+	if user, exists := c.Get("user"); exists {
+
+		userInter := user.(model.User)
+
+		newUserPwd := c.PostForm("NewUserPwd")
+
+		newUser := &model.User{
+			Password: newUserPwd,
+		}
+		newUser.ID = userInter.ID
+
+		newUser.Password = newUser.EncryptPassword(newUserPwd, newUser.Salt())
+		err := newUser.UpdateUserPwd()
+
+		c.JSON(http.StatusOK, gin.H{
+			"succeed": err==nil,
 		})
 	}
 }
 
 //	Admin SignIn Index Get 管理员登录
 func AdminSignIndexGet(c *gin.Context) {
-
 	var err error
+
 	if user, exists := c.Get("user"); exists {
 
 		userInter := user.(model.User)
 
-		articleCount := model.GetArticleCountByUserId(userInter.ID)
-		pageCount := model.GetPageCountByUserId(userInter.ID)
-		cateCount := model.GetCateCountByUserId(userInter.ID)
+		articleCount	:= model.GetArticleCountByUserId(userInter.ID)
+		pageCount 		:= model.GetPageCountByUserId(userInter.ID)
+		cateCount 		:= model.GetCateCountByUserId(userInter.ID)
 
 		var comments []string
-		//comments = append(comments, "nihao","haodehen","xiaodai")
 
 		c.HTML(http.StatusOK, "admin/index.html", gin.H{
 			"pageCount":    	pageCount,
@@ -66,16 +150,16 @@ func AdminSignIndexGet(c *gin.Context) {
 }
 
 
-// User SignIn Get  用户登录
-func UserSignInGet(c *gin.Context) {
+// SignIn Get  用户登录
+func SignInGet(c *gin.Context) {
 	c.HTML(http.StatusOK, "auth/signin.html", nil)
 }
 
 
-//User SignIn Post  用户登录
-func UserSignInPost(c *gin.Context) {
-	useremail := c.PostForm("useremail")
-	password := c.PostForm("password")
+// SignIn Post  用户登录
+func SignInPost(c *gin.Context) {
+	useremail	:= c.PostForm("useremail")
+	password	:= c.PostForm("password")
 
 	useremail = strings.TrimSpace(useremail)
 
@@ -130,18 +214,18 @@ func UserSignInPost(c *gin.Context) {
 }
 
 
-// User SignUp Get  用户注册
-func UserSignUpGet(c *gin.Context) {
+// SignUp Get  用户注册
+func SignUpGet(c *gin.Context) {
 	c.HTML(http.StatusOK, "auth/signup.html", nil)
 }
 
-// User SignUp Post 用户注册
-func UserSignUpPost(c *gin.Context) {
+// SignUp Post 用户注册
+func SignUpPost(c *gin.Context) {
 
 	var err error
 
-	useremail := c.PostForm("useremail")
-	password :=	c.PostForm("password")
+	useremail 	:= c.PostForm("useremail")
+	password 	:= c.PostForm("password")
 
 	if len(useremail) > 0 && len(password) > 0 {
 		if len(password) >= 6 {
@@ -179,16 +263,20 @@ func UserSignUpPost(c *gin.Context) {
 
 
 // Signout 退出登录
-func UserSignout(c *gin.Context) {
-	if user, exists := c.Get("user"); exists {
-		userInter := user.(model.User)
+func SignOutGet(c *gin.Context) {
 
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
-
-		c.Redirect(http.StatusSeeOther, "/signin")
-		return
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		MaxAge:   -1,
+		Path:     "/",
+		Domain:   "",
+		HttpOnly: true,
 	}
+	http.SetCookie(c.Writer, cookie)
+
+	c.Redirect(http.StatusSeeOther, "/signin")
+	return
 }
 
 
@@ -200,25 +288,13 @@ func AdminUserIndexGet(c *gin.Context) {
 
 		var comments []string
 
-		rows, rowErr := model.DB.Raw("select * from user").Rows()
-		defer rows.Close()
-		if rowErr == nil {
-			var users []*model.User
-
-			for rows.Next() {
-				var newUser model.User
-				err = model.DB.ScanRows(rows, &newUser)
-				if err == nil {
-					users = append(users, &newUser)
-				} else {
-					err = errors.New("服务器内部错误")
-				}
-			}
+		users, userErr := model.GetUserQuerys()
+		if userErr == nil {
 
 			c.HTML(http.StatusOK, "admin/user.html", gin.H{
-				"users": users,
-				"user": user,
-				"comments": comments,
+				"users"		: users,
+				"user"		: user,
+				"comments"	: comments,
 			})
 			return
 		} else {
@@ -230,12 +306,11 @@ func AdminUserIndexGet(c *gin.Context) {
 			"message": err.Error(),
 		})
 	}
-
 	return
 }
 
 // Admin User Lock 锁定用户
-func AdminUserLock(c *gin.Context) {
+func AdminUserLockPost(c *gin.Context) {
 
 	var err error
 	if _, exists := c.Get("user"); exists {
@@ -243,10 +318,9 @@ func AdminUserLock(c *gin.Context) {
 		userID, _ := strconv.ParseUint(id, 10, 64)
 
 		// Find User
-		var err error
-		var newUser model.User
-		err = model.DB.Where("id = ?", userID).First(&newUser).Error
-		if err == nil {
+		newUser, userErr := model.GetUserById(userID)
+		if userErr == nil {
+
 			newUser.LockState = !newUser.LockState
 			err = newUser.Lock()
 			if err == nil {
@@ -260,6 +334,7 @@ func AdminUserLock(c *gin.Context) {
 		} else {
 			err = errors.New("查找用户失败")
 		}
+
 		c.JSON(http.StatusOK, gin.H{
 			"succeed": false,
 			"message": err.Error(),

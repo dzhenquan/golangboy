@@ -1,4 +1,5 @@
 {{define "admin/profile.html"}}
+
 {{template "admin/page_start.html"}}
 {{template "admin/navbar.html" .}}
 {{template "admin/sidebar.html" .}}
@@ -24,7 +25,7 @@
     <!-- 页面内容开始 -->
     <div class="row">
         <div class="col-md-7">
-            <form id="thisForm">
+            {{/*<form id="thisForm">*/}}
                 <div class="box box-solid">
                     <div class="box-header with-border">
                         <h3 class="box-title">基本信息</h3>
@@ -38,73 +39,77 @@
                     <div class="box-body">
                         <input type="hidden" name="Id" value="{{.user.ID}}">
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group margin-bottom-0">
-                                    <div class="fileinput {{if .user.AvatarUrl}}fileinput-exists{{else}}fileinput-new{{end}} display-block"
-                                         data-provides="fileinput">
-                                        <div class="fileinput-new thumbnail">
-                                            <img src="/static/img/no-image.png" alt="">
-                                        </div>
-                                        <div class="fileinput-preview fileinput-exists thumbnail">
-                                            {{/*<img src="{{.user.Avatar}}">*/}}
-                                        </div>
-                                        <div>
-                                            <span class="btn btn-file">
-                                                <span class="fileinput-new"> 选择图片 </span>
-                                                <span class="fileinput-exists"> 更换 </span>
-                                                <input name="fileImageUrl" id="inputImageUrl" type="file">
-                                            </span>
-                                            <a href="javascript:;" class="btn btn-danger fileinput-exists"
-                                               data-dismiss="fileinput"> 移除 </a>
-                                        </div>
-                                    </div>
-                                    {{/*<input name="ImageUrl" id="ImageUrl" type="hidden" value="{{.user.Avatar}}">*/}}
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>用户名</label>
-                                            <input type="text" name="UserName" class="form-control"
-                                                   placeholder="长度不超过24" value="{{.user.Email}}" disabled>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>姓名</label>
-                                            <input type="text" name="RealName" class="form-control"
-                                                   placeholder="长度不超过16" value="{{.user.UserName}}">
+                            <form id="update_image" method="post" action="/admin/profile/upload/image" enctype="multipart/form-data">
+                                <div class="col-md-12">
+                                    <div class="form-group margin-bottom-0">
+                                        <div class="fileinput {{if gt (len .user.AvatarUrl) 0}}fileinput-exists{{else}}fileinput-new{{end}} display-block"
+                                             data-provides="fileinput">
+                                            <div class="fileinput-new thumbnail">
+                                                <img src="/static/img/no-image.png" alt="">
+                                            </div>
+                                            <div class="fileinput-preview fileinput-exists thumbnail">
+                                                <img src="{{.user.AvatarUrl}}">
+                                            </div>
+                                            <div>
+                                                <span class="btn btn-file">
+                                                    <span class="fileinput-new"> 选择图片 </span>
+                                                    <span class="fileinput-exists"> 更换 </span>
+                                                    <input name="fileImageUrl" id="inputImageUrl" type="file">
+                                                </span>
+                                                <a href="javascript:;" class="btn btn-danger fileinput-exists"
+                                                   data-dismiss="fileinput"> 移除 </a>
+                                                <button type="submit" class="btn btn-primary">保 存</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>手机号</label>
-                                            <input type="text" name="Mobile" class="form-control" placeholder=""
-                                                   value="{{.user.Telephone}}">
+                            </form>
+                            <form id="update_info" method="post" action="/admin/profile/update/userinfo">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>邮箱</label>
+                                                <input type="text" name="Email" class="form-control" placeholder=""
+                                                       value="{{.user.Email}}" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>姓名</label>
+                                                <input type="text" name="RealName" class="form-control"
+                                                       placeholder="长度不超过16" value="{{.user.RealName}}">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>邮箱</label>
-                                            <input type="text" name="Email" class="form-control" placeholder=""
-                                                   value="{{.user.Email}}">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>手机号</label>
+                                                <input type="text" name="Mobile" class="form-control" placeholder=""
+                                                       value="{{.user.Telephone}}">
+                                            </div>
                                         </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>用户名</label>
+                                                <input type="text" name="UserName" class="form-control"
+                                                       placeholder="长度不超过24" value="{{.user.UserName}}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="box-footer align-right">
+                                        <button type="submit" class="btn btn-primary">保 存</button>
                                     </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
-                    <div class="box-footer align-right">
-                        <button type="submit" class="btn btn-primary">保 存</button>
-                    </div>
                 </div>
-            </form>
+            {{/*</form>*/}}
         </div>
         <div class="col-md-5">
-            <form id="pwdForm">
+            <form id="update_pwd" method="post" action="/admin/profile/update/userpwd">
                 <div class="box box-solid">
                     <input type="hidden" name="Id" value="{{.user.ID}}">
                     <div class="box-header with-border">
@@ -119,7 +124,7 @@
                     <div class="box-body">
                         <div class="form-group">
                             <label>原密码</label>
-                            <input type="password" name="UserPwd" class="form-control" placeholder="">
+                            <input type="password" name="UserPwd" class="form-control" value="123456">
                         </div>
                         <div class="form-group">
                             <label>新密码</label>
@@ -140,8 +145,50 @@
     </div>
 </section>
 
+</div>
 <!-- 图片上传插件 -->
 {{/*<script src="/static/libs/plugins/bootstrap-fileinput-jasny/bootstrap-fileinput.js"></script>*/}}
 
-{{template "admin/page_end.html"}}
+<script src="/static/libs/jquery/jquery.min.js"></script>
+<script src="/static/libs/jquery/jquery.form.js"></script>
+<script src="/static/libs/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/libs/AdminLTE/js/adminlte.min.js"></script>
+<script src="/static/libs/AdminLTE/js/demo.js"></script>
+<script src="/static/libs/plugins/bootstrap-fileinput-jasny/bootstrap-fileinput.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#update_image").ajaxForm(function(data){
+
+            window.location.href = window.location.href;
+            if(data.succeed){
+                alert("提交成功！");
+            } else {
+                alert("提交失败!")
+            }
+        });
+        $("#update_info").ajaxForm(function(data){
+
+            window.location.href = window.location.href;
+            if(data.succeed){
+                alert("提交成功！");
+            } else {
+                alert("提交失败!")
+            }
+        });
+        $("#update_pwd").ajaxForm(function(data){
+
+            window.location.href = window.location.href;
+            if(data.succeed){
+                alert("提交成功！");
+            } else {
+                alert("提交失败!")
+            }
+        });
+    });
+
+</script>
+
+</body>
+</html>
 {{end}}

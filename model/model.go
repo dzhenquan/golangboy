@@ -1,10 +1,10 @@
 package model
 
 import (
-	"github.com/jinzhu/gorm"
-	"gin-blog/config"
-	_ "github.com/go-sql-driver/mysql"
 	"time"
+	"github.com/jinzhu/gorm"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/dzhenquan/golangboy/config"
 )
 
 var DB *gorm.DB

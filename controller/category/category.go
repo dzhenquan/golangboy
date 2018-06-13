@@ -1,11 +1,12 @@
 package category
 
 import (
-	"github.com/gin-gonic/gin"
 	"fmt"
-	"gin-blog/model"
 	"net/http"
-	"github.com/pkg/errors"
+	"errors"
+	"github.com/gin-gonic/gin"
+	"github.com/dzhenquan/golangboy/model"
+	"strconv"
 )
 
 
@@ -55,32 +56,25 @@ func AdminCreateCategory(c *gin.Context) {
 
 	var err error
 
-	if user, exists := c.Get("user"); exists {
-		userInter := user.(model.User)
-		fmt.Println("userID:", userInter.ID)
-		fmt.Println("userEmail:", userInter.Email)
+	if _, exists := c.Get("user"); exists {
 
 		cateName := c.PostForm("value")
+
 		fmt.Println("cateName: ", cateName)
 
 		// Find Category
-		var findCate model.Category
-		if err = model.DB.Where("name = ?", cateName).First(&findCate).Error; err == nil {
-			fmt.Println("id: ", findCate.ID)
-			fmt.Println("name: ", findCate.Name)
-
+		if findCate, err := model.GetCategoryByName(cateName); err == nil {
 			c.JSON(http.StatusOK, gin.H{
 				"data": findCate,
 			})
 			return
 		}
 
-		fmt.Println("没有发现 ", cateName," 开始插入!")
-
 		var newCate model.Category
 		newCate.Name = cateName
 
-		if err = model.DB.Create(&newCate).Error; err == nil {
+		// Insert Category
+		if err = newCate.Insert(); err == nil {
 			c.JSON(http.StatusOK, gin.H{
 				"data": newCate,
 			})
@@ -95,4 +89,56 @@ func AdminCreateCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message":err.Error(),
 	})
+	return
+}
+
+
+func AdminCategoryIndex(c *gin.Context) {
+
+	if user, exists := c.Get("user"); exists {
+
+		userInter := user.(model.User)
+
+		var comments []string
+
+		categorys, err := model.GetCategoryQuerysByUserId(userInter.ID)
+		if err != nil {
+			fmt.Println("err: ", err)
+			categorys = nil
+		}
+		c.HTML(http.StatusOK, "admin/category.html", gin.H{
+			"categorys"	: categorys,
+			"user"		: user,
+			"comments"	: comments,
+		})
+		return
+	}
+}
+
+
+func AdminArticleByCateId(c *gin.Context) {
+
+	if user, exists := c.Get("user"); exists {
+
+		id := c.Param("id")
+		userInter := user.(model.User)
+
+		var comments []string
+
+		cateId, _ := strconv.Atoi(id)
+
+		articles, err := model.AdminGetArticleByCategory(userInter.ID, uint64(cateId))
+		if err == nil {
+			c.HTML(http.StatusOK, "admin/cate_article.html", gin.H{
+				"articles"	: articles,
+				"user"		: user,
+				"comments"	: comments,
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": err.Error(),
+		})
+	}
 }

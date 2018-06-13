@@ -1,14 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"github.com/gin-gonic/gin"
-	_ "gin-blog/config"
-	"gin-blog/config"
-	"gin-blog/model"
 	"os"
 	"io"
-	"gin-blog/router"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/dzhenquan/golangboy/model"
+	"github.com/dzhenquan/golangboy/config"
+	"github.com/dzhenquan/golangboy/router"
 )
 
 func main() {

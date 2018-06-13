@@ -1,17 +1,16 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
-	//"gin-blog/config"
 	"path/filepath"
-	"gin-blog/middleware"
-	"gin-blog/controller/auth"
 	"html/template"
-	"gin-blog/utils"
-	"gin-blog/controller/article"
-	"gin-blog/controller/category"
-	"gin-blog/controller/page"
-	"gin-blog/controller/link"
+	"github.com/gin-gonic/gin"
+	"github.com/dzhenquan/golangboy/utils"
+	"github.com/dzhenquan/golangboy/middleware"
+	"github.com/dzhenquan/golangboy/controller/auth"
+	"github.com/dzhenquan/golangboy/controller/page"
+	"github.com/dzhenquan/golangboy/controller/link"
+	"github.com/dzhenquan/golangboy/controller/article"
+	"github.com/dzhenquan/golangboy/controller/category"
 )
 
 
@@ -20,12 +19,12 @@ func Route(router *gin.Engine) {
 	//apiPrefix := config.ServerConfig.APIPrefix
 
 	funcMap := template.FuncMap{
-		"dateFormat": utils.DateFormat,
-		"substring":  utils.Substring,
-		"isOdd":      utils.IsOdd,
-		"isEven":     utils.IsEven,
-		"truncate":   utils.Truncate,
-		"add":        utils.Add,
+		"add"			: utils.Add,
+		"isOdd"			: utils.IsOdd,
+		"isEven"		: utils.IsEven,
+		"truncate"		: utils.Truncate,
+		"substring"		: utils.Substring,
+		"dateFormat"	: utils.DateFormat,
 		//"listtag":    helpers.ListTag,
 	}
 
@@ -38,27 +37,29 @@ func Route(router *gin.Engine) {
 
 	api := router.Group("", middleware.RefreshTokenCookie)
 	{
-		api.GET("/signin", auth.UserSignInGet)
-		api.POST("/signin", auth.UserSignInPost)
+		api.GET("/signin", auth.SignInGet)
+		api.POST("/signin", auth.SignInPost)
 
-		api.GET("/signup", auth.UserSignUpGet)
-		api.POST("/signup", auth.UserSignUpPost)
-		api.GET("/logout", middleware.SigninRequired,
-			auth.UserSignout)
+		api.GET("/signup", auth.SignUpGet)
+		api.POST("/signup", auth.SignUpPost)
+		api.GET("/logout",  auth.SignOutGet)
 
-		api.GET("/", article.UserArticleIndexGet)
+		api.GET("/", article.ArticleIndexGet)
+		api.GET("/login", auth.SignInGet)
 
-		api.GET("/page/:id", middleware.SigninRequired,
-			page.AdminPageGet)
-		api.GET("/article/:id", middleware.SigninRequired,
-			article.AdminArticleGet)
+		api.GET("/about/me", page.PageAboutMeGet)
+		api.GET("/about/detail/:id", page.AjaxPageDetailGet)
+
+		api.GET("/article/list", article.ArticleListGet)
+		api.GET("/article/category/:id", article.ArticleCategoryGet)
+		api.GET("/article/archive/:yearMonth", article.ArticleArchiveGet)
+
+		api.GET("/article/detail/:id", article.ArticleDetailGet)
+		api.GET("/ajax/article/detail/:id", article.AjaxArticleDetailGet)
 	}
 
 	adminAPI := router.Group("/admin", middleware.RefreshTokenCookie)
 	{
-		adminAPI.POST("/logout", middleware.SigninRequired,
-			auth.UserSignout)
-
 		adminAPI.GET("/index", middleware.SigninRequired,
 			auth.AdminSignIndexGet)
 
@@ -66,17 +67,27 @@ func Route(router *gin.Engine) {
 		adminAPI.GET("/user", middleware.SigninRequired,
 			auth.AdminUserIndexGet)
 		adminAPI.POST("/user/:id/lock", middleware.SigninRequired,
-			auth.AdminUserLock)
+			auth.AdminUserLockPost)
 
 		// Profile
 		adminAPI.GET("/profile", middleware.SigninRequired,
 			auth.AdminProfileGet)
+		adminAPI.POST("/profile/upload/image", middleware.SigninRequired,
+			auth.AdminUploadImage)
+		adminAPI.POST("/profile/update/userpwd", middleware.SigninRequired,
+			auth.AdminUpdateUserPwd)
+		adminAPI.POST("/profile/update/userinfo", middleware.SigninRequired,
+			auth.AdminUpdateUserInfo)
 
 		// Category
-		adminAPI.POST("/new_tag", middleware.SigninRequired,
+		adminAPI.POST("/new_category", middleware.SigninRequired,
 			category.AdminCreateCategory)
 		/*adminAPI.POST("/new_tag", middleware.SigninRequired,
 			category.AdminGetCategoryQuerys)*/
+		adminAPI.GET("/category", middleware.SigninRequired,
+				category.AdminCategoryIndex)
+		adminAPI.GET("/category/:id", middleware.SigninRequired,
+			category.AdminArticleByCateId)
 
 		// Link
 		adminAPI.GET("/link", middleware.SigninRequired,
@@ -94,7 +105,9 @@ func Route(router *gin.Engine) {
 		adminAPI.GET("/new_page", middleware.SigninRequired,
 			page.AdminCreatePageGet)
 		adminAPI.POST("/new_page", middleware.SigninRequired,
-			page.AdminCreatePage)
+			page.AdminCreatePagePost)
+		adminAPI.GET("/page/:id", middleware.SigninRequired,
+			page.AdminPageGet)
 		adminAPI.GET("/page/:id/edit", middleware.SigninRequired,
 			page.AdminEditPage)
 		adminAPI.POST("/page/:id/edit", middleware.SigninRequired,
@@ -105,20 +118,24 @@ func Route(router *gin.Engine) {
 			page.AdminDeletePage)
 
 		// Article
-		adminAPI.GET("/post", middleware.SigninRequired,
+		adminAPI.GET("/article", middleware.SigninRequired,
 			article.AdminArticleIndex)
-		adminAPI.GET("/new_post", middleware.SigninRequired,
-			article.AdminNewPostGet)
-		adminAPI.POST("/new_post", middleware.SigninRequired,
-			article.AdminCreatePost)
-		adminAPI.GET("/post/:id/edit", middleware.SigninRequired,
+		adminAPI.GET("/new_article", middleware.SigninRequired,
+			article.AdminCreateArticleGet)
+		adminAPI.POST("/new_article", middleware.SigninRequired,
+			article.AdminCreateArticlePost)
+
+		adminAPI.GET("/article/:id", middleware.SigninRequired,
+			article.AdminArticleGet)
+
+		adminAPI.GET("/article/:id/edit", middleware.SigninRequired,
 			article.AdminEditGET)
-		adminAPI.POST("/post/:id/edit", middleware.SigninRequired,
+		adminAPI.POST("/article/:id/edit", middleware.SigninRequired,
 			article.AdminUpdateArticle)
-		adminAPI.POST("/post/:id/publish", middleware.SigninRequired,
-			article.AdminArticlePublish)
-		adminAPI.POST("/post/:id/delete", middleware.SigninRequired,
-			article.AdminArticleDelete)
+		adminAPI.POST("/article/:id/publish", middleware.SigninRequired,
+			article.AdminPublishArticle)
+		adminAPI.POST("/article/:id/delete", middleware.SigninRequired,
+			article.AdminDeleteArticle)
 	}
 }
 

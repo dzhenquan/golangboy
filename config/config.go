@@ -2,11 +2,11 @@ package config
 
 import (
 	"os"
-	"io/ioutil"
 	"fmt"
 	"regexp"
+	"io/ioutil"
 	"encoding/json"
-	"gin-blog/utils"
+	"github.com/dzhenquan/golangboy/utils"
 )
 
 var jsonData map[string]interface{}

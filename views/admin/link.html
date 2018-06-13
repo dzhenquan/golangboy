@@ -43,7 +43,7 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                <small>友链管理<a class="btn btn-primary" href="javascript:void(0);" data-href="/admin/new_link" data-toggle="modal" data-target="#add-dialog"><span class="glyphicon glyphicon-plus"></span>新增</a></small>
+                <small>友链管理<a class="label label-success" href="javascript:void(0);" data-href="/admin/new_link" data-toggle="modal" data-target="#add-dialog"><span class="glyphicon glyphicon-plus"></span>新增</a></small>
             </h1>
             <ol class="breadcrumb">
                 <li><a href="/admin/index"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -82,8 +82,8 @@
                                     <td>{{.Sort}}</td>
                                     <td>{{.View}}</td>
                                     <td>{{dateFormat .CreatedAt "06-01-02 15:04"}}</td>
-                                    <td><a id="editrow" href="javascript:void(0);" class="btn btn-primary" data-href="/admin/link/{{.ID}}/edit" data-toggle="modal" data-target="#add-dialog">编辑</a>
-                                        <a href="javascript:void(0);" class="btn btn-danger" data-href="/admin/link/{{.ID}}/delete" data-toggle="modal" data-target="#confirm-delete">删除</a>
+                                    <td><a id="editrow" href="javascript:void(0);" class="label label-success" data-href="/admin/link/{{.ID}}/edit" data-toggle="modal" data-target="#add-dialog">编辑</a>
+                                        <a href="javascript:void(0);" class="label label-danger" data-href="/admin/link/{{.ID}}/delete" data-toggle="modal" data-target="#confirm-delete">删除</a>
                                     </td>
                                 </tr>
                                 {{end}}

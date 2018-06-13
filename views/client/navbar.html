@@ -1,0 +1,107 @@
+{{define "client/navbar.html"}}
+
+<!--博客顶级标题开始-->
+<div class="top-header hidden-xs">
+    <div class="container">
+        <div class="row">
+            <span class="greet padding-left15">您好，欢迎到访代振全个人博客!</span>
+            <a class="login padding-right15" id="login">
+                <span class="glyphicon glyphicon-log-in"></span>
+                &nbsp;登录
+            </a>
+        </div>
+    </div>
+</div>
+<!--博客顶级标题结束-->
+
+
+<!--博客标题开始-->
+<div class="header hidden-xs">
+    <div class="container">
+        <div class="row">
+            <div class="logo ">
+                <a href="/" title="GolangBoy">
+                    <span class="header-title" style="font-family:'Edwardian';">GolangBoy</span>
+                    <span class="header-desc">–关注Golang开发</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!--博客标题结束-->
+
+
+<!--博客导航栏开始-->
+<nav class="navbar navbar-default blog-nav">
+    <div class="container">
+        <div class="row">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target="#navbar-menu">
+                    <span class="sr-only">切换导航</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand visible-xs" href="#">GolangBoy</a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <!--<div class="navbar-header hidden">-->
+                <!--<a class="navbar-brand" href="#">郭小郭博客</a>-->
+                <!--</div>-->
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <a href="/">首页</a>
+                    </li>
+                    <li class="nav-hover">
+                        <a target="_blank">技术分享<span class="caret"></span></a>
+                        <ul class="dropdown-menu clearfix ">
+                            {{range .articleCates}}
+                            <li>
+                                <a href="/article/category/{{.CateID}}">{{.CateName}}</a>
+                            </li>
+                            {{end}}
+                        </ul>
+                    </li>
+
+                    <li class="nav-hover">
+                        <a target="_blank">开源项目<span class="caret"></span></a>
+                        <ul class="dropdown-menu clearfix ">
+                            <li>
+                                <a href="https://github.com/dzhenquan/ftp-client" target="_blank">Linux下FTP客户端</a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/dzhenquan/golangboy" target="_blank">golangboy博客系统</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-hover">
+                        <a target="_blank">官方文档<span class="caret"></span></a>
+                        <ul class="dropdown-menu clearfix">
+                            <li><a href="http://docs.studygolang.com" target="_blank">英文文档</a></li>
+                            <li><a href="http://docscn.studygolang.com" target="_blank">中文文档</a></li>
+                            <li><a href="https://www.studygolang.com/pkgdoc" target="_blank">标准库中文版</a></li>
+                            <li role="presentation" class="divider"></li>
+                            <li><a href="https://tour.go-zh.org" target="_blank">Go指南</a></li>
+                        </ul>
+                    <li class="nav-hover">
+                        <a href="/about/me">关于我</a>
+                    </li>
+                </ul>
+                <form class="navbar-form navbar-right" action="#" method="post">
+                    <div class="input-group">
+                        <input type="text" name="keyword" class="form-control" placeholder="请输入关键字" maxlength="20"
+                               autocomplete="off">
+                        <span class="input-group-btn">
+							<button class="btn btn-default btn-search" name="search" type="submit">搜索</button>
+						</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+<!--博客导航结束-->
+{{end}}

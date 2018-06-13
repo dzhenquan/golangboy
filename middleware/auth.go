@@ -1,12 +1,13 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
-	"gin-blog/model"
-	"errors"
-	"github.com/dgrijalva/jwt-go"
 	"fmt"
-	"gin-blog/config"
+	"errors"
+	"github.com/gin-gonic/gin"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/dzhenquan/golangboy/model"
+	"github.com/dzhenquan/golangboy/config"
+	"net/http"
 )
 
 func getUser(c *gin.Context) (model.User, error) {
@@ -46,7 +47,10 @@ func SigninRequired(c *gin.Context) {
 	var err error
 
 	if user, err = getUser(c); err != nil {
-		err = errors.New("未登录")
+		err = errors.New("未登录,请登录后查看")
+
+		c.Redirect(http.StatusSeeOther, "/signin")
+		return
 	}
 	c.Set("user", user)
 	c.Next()

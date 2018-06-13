@@ -1,0 +1,271 @@
+{{define "client/index.html"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=11,IE=10,IE=9,IE=8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="xxxxx">
+    <meta name="kewords" content="Python,Js,HTML....">
+    <title>GolangBoy | 首页</title>
+    <meta name="apple-mobile-web-app-title" content="个人博客网站">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <!--
+    设置icon
+    <link rel="shortcut icon" href="http://static.html580.com/assets/images/favicon.ico">
+    -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="个人博客网站">
+    <!--<link rel="apple-touch-icon-precomposed" href="http://static.html580.com/assets/images/favicon.ico">-->
+
+    <link href="/static/libs/bootstrap/css/bootstrap.css" rel="stylesheet"
+          type="text/css">
+    <link href="/static/css/site.css" rel="stylesheet" type="text/css">
+    <link href="/static/libs/font-awesome/css/font-awesome.css" rel="stylesheet"
+          type="text/css">
+
+    <link href='http://cdn.webfont.youziku.com/webfonts/nomal/118549/46909/5b1cf654f629dc014451a748.css'
+		  rel='stylesheet' type='text/css' />
+</head>
+<body>
+
+{{template "client/navbar.html" .}}
+
+<div class="main">
+    <div class="container">
+        <div class="row ">
+            <div id="content" class="col-sm-9">
+                <!--<div id="showPro" class="show-pro box">-->
+                <div class="notice box">
+                    <!--<div class="container">-->
+                    <a href="#">
+                        <span class="glyphicon icon-volume-up"> </span>
+                        <span class="notice-content">博主发布最新开源项目-基于docker的云实验平台</span>
+                    </a>
+                    <!--</div>-->
+                </div>
+
+                <div id="proCarousel" class="pro-carousel box carousel slide">
+                    <!-- 轮播（Carousel）指标 -->
+                    <ol class="carousel-indicators">
+                        <li data-target="#proCarousel" data-slide-to="0" class="active"></li>
+                        <li data-target="#proCarousel" data-slide-to="1"></li>
+                        <li data-target="#proCarousel" data-slide-to="2"></li>
+                    </ol>
+                    <!-- 轮播（Carousel）项目 -->
+                    <div class="carousel-inner">
+                        <div class="item active">
+                            <a href="http://www.baidu.com">
+                                <img src="/static/img/lunbo/mao1.jpg" alt="小猫1">
+                                <div class="carousel-caption">
+                                    <h1>MacBook Air</h1>
+                                    <p>有了新一代 802.11ac 技术，MacBook Air 令 Wi-Fi 速度超越极限。</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="item">
+                            <a href="http://www.baidu.com">
+                                <img src="/static/img/lunbo/mao2.jpg" alt="小猫2">
+                                <div class="carousel-caption">
+                                    <h1>MacBook Air</h1>
+                                    <p>有了新一代 802.11ac 技术，MacBook Air 令 Wi-Fi 速度超越极限。</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="item">
+                            <a href="http://www.baidu.com">
+                                <img src="/static/img/lunbo/mao3.jpg" alt="小猫3">
+                                <div class="carousel-caption">
+                                    <h1>MacBook Air</h1>
+                                    <p>有了新一代 802.11ac 技术，MacBook Air 令 Wi-Fi 速度超越极限。</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- 轮播（Carousel）导航 -->
+                    <a class="carousel-control left" href="#proCarousel" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left"> </span>
+                    </a>
+                    <a class="carousel-control right" href="#proCarousel" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right"> </span>
+                    </a>
+                </div>
+
+                <!--</div>-->
+                <div class="last-article box">
+                    <h3 class="page-header">
+						最新文章
+                    </h3>
+                    <div class="article-list"></div>
+                </div>
+                <div class="more-article ">&nbsp;&nbsp;
+                    <a href="javascript:void(0);">点击查看更多</a> &nbsp;
+                </div>
+            </div>
+
+            {{template "client/right.html" .}}
+        </div>
+    </div>
+</div>
+
+{{template "client/footer.html" .}}
+
+<script type="text/javascript">
+	//首次加载文章列表
+	var page = 0;
+	var per_page = 5;
+	var current_total = 0;
+	paginate(page, per_page, current_total);
+	//page当前第几页，per_page每页的数量，total文章总数
+	function paginate(page, per_page) {
+		//page = page || 0;
+		//per_page = per_page || 10;
+
+		$.ajax({
+			url: '/article/list',
+			type: 'get',
+			data: {
+				'page': page,
+				'per_page': per_page
+			},
+			dataType: 'json',
+			success: function (json) {
+
+				if (json.status == 0) {
+					data = json.data;
+					total = json.total;
+                    
+                    if (total <= 0) {
+                        $('.more-article').remove();
+                        return
+                    }
+
+					data_len = data.length;
+					current_total += data_len;
+					if (current_total >= total) {
+						//移除查看更多操作
+						$('.more-article').remove();
+					}
+					$.each(data, function (i, item) {
+						drawArticleList(item.articleID,item.categoryID,item.category, item.title, item.desc, item.createTime, item.readCount, item.commentCount)
+					});
+				} else {
+					alert('加载失败'+data.length);
+				}
+
+			},
+			error: function (xhr, textStatus) {
+
+			}
+		});
+	}
+	function drawArticleList(articleID, categoryID, category, title, desc, createTime, readCount, commentCount) {
+		var articleItem = "<article " + "value=" + articleID + ">" +
+				"<header>" +
+				'<a class="cat" href='+"/article/category/" + categoryID + ">" +
+				category +
+				'<i></i>' +
+				'</a>' +
+				'<h2>' +
+				'<a style="margin-left:5px;" href='+"/article/detail/" + articleID +">" +
+				title +
+				'</a>' +
+				'</h2>' +
+				'</header>' +
+				'<a class="note">' +
+				desc +
+				'</a>' +
+				'<p class="auth-span">' +
+				'<span class="muted">' +
+				'<span class="icon-calendar" style="margin-right: 5px;"></span>' +
+				createTime +
+				'</span>' +
+
+				' <span class="muted">' +
+				'<span class="icon-eye-open" style="margin-right: 5px;"></span>' +
+				readCount +
+				'次查看' +
+				'</span>' +
+				'<span class="muted">' +
+				'<span class="icon-comments-alt" style="margin-right: 5px;">' +
+				'</span>' +
+				'<a>' +
+				commentCount +
+				'条评论' +
+				'</a>' +
+				'</span>' +
+
+				'</p>' +
+				'</article>';
+
+		$('.article-list').append(articleItem);
+	}
+
+	$('.more-article').click(function () {
+		page += 1;
+		paginate(page, per_page)
+	});
+</script>
+
+
+<script type="text/javascript">
+	$(function () {
+		var gdLiCount = $("#article-gd ul li").length;
+		if (gdLiCount > 9) {
+			$('#gdBoxDown').removeClass('hidden');
+			var a = $("#article-gd ul li:gt(9)");
+			a.hide();
+			$("#gdBoxDown").click(function () {
+				if (a.is(':visible')) {
+					a.slideUp('fast');
+					$(this).removeClass('up');
+					$('#gdBoxDown span').text('展开');
+					$('#gdBoxDown  b').removeClass('caret-down');
+					$('#gdBoxDown  b').addClass('caret');
+
+
+				} else {
+					a.slideDown('fast').show();
+					$(this).addClass('up');
+					$('#gdBoxDown span').text('收起');
+					$('#gdBoxDown  b').removeClass('caret');
+					$('#gdBoxDown  b').addClass('caret-down');
+				}
+			});
+		}
+
+	});
+	$(function () {
+		var flLiCount = $("#article-fl ul li").length;
+
+		if (flLiCount > 10) {
+			$('#flBoxDown').removeClass('hidden');
+			var a = $("#article-fl ul li:gt(9)");
+			a.hide();
+			$("#flBoxDown").click(function () {
+				if (a.is(':visible')) {
+					a.slideUp('fast');
+					$(this).removeClass('up');
+					$('#flBoxDown span').text('展开');
+					$('#flBoxDown  b').removeClass('caret-down');
+					$('#flBoxDown  b').addClass('caret');
+				} else {
+					a.slideDown('fast').show();
+					$(this).addClass('up');
+					$('#flBoxDown span').text('收起');
+					$('#flBoxDown  b').removeClass('caret');
+					$('#flBoxDown  b').addClass('caret-down');
+				}
+			});
+		}
+	});
+</script>
+
+</body>
+</html>
+{{end}}

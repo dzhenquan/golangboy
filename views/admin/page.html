@@ -43,7 +43,7 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                <small>页面管理<a class="btn btn-primary" href="/admin/new_page" target="_blank"><span class="glyphicon glyphicon-plus"></span>新增</a></small>
+                <small>页面管理<a class="label label-success" href="/admin/new_page"><span class="glyphicon glyphicon-plus"></span>新增</a></small>
             </h1>
             <ol class="breadcrumb">
                 <li><a href="/admin/index"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -76,14 +76,19 @@
                                 {{range .pages}}
                                 <tr>
                                     <td>{{.ID}}</td>
-                                    <td><a href="/page/{{.ID}}" target="_blank">{{.Title}}</a></td>
+                                    <td><a href="/admin/page/{{.ID}}">{{.Title}}</a></td>
                                     <td>
-                                        <a href="javascript:void(0);" onclick="pushlish('{{.ID}}')"> {{if .IsPublished}}√{{else}}×{{end}}</a>
+                                    {{if not .IsPublished}}
+                                        <a href="javascript:void(0);" class="label label-danger" onclick="pushlish('{{.ID}}')">NO</a>
+                                    {{else}}
+                                        <a href="javascript:void(0);" class="label label-success" onclick="pushlish('{{.ID}}')">YES</a>
+                                    {{end}}
                                     </td>
+
                                     <td>{{dateFormat .CreatedAt "06-01-02 15:04"}}</td>
                                     <td>{{dateFormat .UpdatedAt "06-01-02 15:04"}}</td>
-                                    <td><a href="/admin/page/{{.ID}}/edit" target="_blank" class="btn btn-primary">编辑</a>
-                                        <a href="#" class="btn btn-danger" data-href="/admin/page/{{.ID}}/delete" data-toggle="modal" data-target="#confirm-delete">删除</a>
+                                    <td><a href="/admin/page/{{.ID}}/edit" class="label label-success">编辑</a>
+                                        <a href="#" class="label label-danger" data-href="/admin/page/{{.ID}}/delete" data-toggle="modal" data-target="#confirm-delete">删除</a>
                                     </td>
                                 </tr>
                                 {{end}}

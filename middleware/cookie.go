@@ -1,18 +1,15 @@
 package middleware
 
 import (
-    "fmt"
-    "github.com/gin-gonic/gin"
     "net/http"
-    "gin-blog/config"
+    "github.com/gin-gonic/gin"
+    "github.com/dzhenquan/golangboy/config"
 )
 
 // RefreshTokenCookie 刷新过期时间
 func RefreshTokenCookie(c *gin.Context) {
     tokenString, err := c.Cookie("token")
-    if err != nil {
-        fmt.Println(err)
-    }
+
     if tokenString != "" && err == nil {
         cookie := &http.Cookie{
             Name: "token",

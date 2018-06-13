@@ -1,6 +1,8 @@
 package model
 
-import "strconv"
+import (
+	"strconv"
+)
 
 // Table Page
 type Page struct {
@@ -21,9 +23,9 @@ func (page *Page) Insert() error {
 
 func (page *Page) Update() error {
 	return DB.Model(page).Updates(map[string]interface{}{
-		"title":		page.Title,
-		"content":		page.Content,
-		"is_published":	page.IsPublished,
+		"title"			:	page.Title,
+		"content"		:	page.Content,
+		"is_published"	:	page.IsPublished,
 	}).Error
 }
 
@@ -41,12 +43,38 @@ func GetPageById(id string) (*Page, error) {
 	return &page, err
 }
 
+
+func GetPageQuerysByUserId(userID uint64) ([]*Page, error) {
+
+	var pages []*Page
+
+	rows, err := DB.Raw("select * from page where user_id = ? ORDER BY updated_at desc;", userID).Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var page Page
+
+		err := DB.ScanRows(rows, &page)
+		if err != nil {
+			return nil, err
+		}
+		pages = append(pages, &page)
+	}
+	return pages, nil
+}
+
 func GetPageCountByUserId(userID uint64) uint64 {
 
 	var pageCount uint64
 
 	row := DB.Raw("select count(*) from page where user_id = ?", userID).Row()
-	row.Scan(&pageCount)
+	err := row.Scan(&pageCount)
+	if err != nil {
+		pageCount = 0
+	}
 
 	return pageCount
 }

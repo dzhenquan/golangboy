@@ -80,16 +80,21 @@
 
 <!-- Content Header (Page header) -->
 <div class="content-wrapper">
+
     <section class="content-header">
+        <!--
         <h1>
-            <small>博文管理<a class="btn btn-primary" href="/admin/new_post" target="_blank"><span class="glyphicon glyphicon-plus"></span>新增</a></small>
+            <small>新增博文<a class="label label-success" href="/admin/new_article" target="_blank"><span class="glyphicon glyphicon-plus"></span>新增</a></small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="/admin/index"><i class="fa fa-dashboard"></i> Home</a></li>
             <li class="active"><a href="#">博文管理</a></li>
         </ol>
+         -->
     </section>
+
     <div class="container">
+
         <br>
         <div class="col-sm-offset-0 col-sm-10">
             <label class="labTitle col-form-label">文章类型：</label>
@@ -106,7 +111,7 @@
             <br/><br/>
 
             <!-- create or update a article -->
-            <form action="/admin/new_post" method="post" id="postForm" class="form-group">
+            <form action="/admin/new_article" method="post" id="postForm" class="form-group">
                 <input id="tags" name="tags" type="hidden">
                 <input name="title" type="text" class="form-control" placeholder="文章标题"/><br/>
                 <textarea id="demo" name="body"></textarea><br/>
@@ -203,10 +208,10 @@
             mode: "inline",
             type: "text",
             pk: 1,
-            url: "/admin/new_tag",
-            placeholder: "添加分类",
+            url: "/admin/new_category",
+            placeholder: "添加分类,支持一个分类",
             success: function (tag) {
-                createButton(tag.data.ID, tag.data.Name);
+                createButton(tag.data.ID, tag.data.name);
             },
             error: function (e) {
                 console.log(e);

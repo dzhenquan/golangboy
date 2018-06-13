@@ -1,77 +1,157 @@
 package article
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
-	"fmt"
-	"gin-blog/model"
+	"errors"
 	"strconv"
-	"github.com/pkg/errors"
+	"net/http"
+	"github.com/gin-gonic/gin"
+	"github.com/dzhenquan/golangboy/model"
+	"time"
+	"strings"
 )
 
 
-func UserArticleIndexGet(c *gin.Context) {
+func ArticleIndexGet(c *gin.Context) {
 
-	rows, err := model.DB.Raw("select * from article ORDER BY updated_at desc LIMIT 10").Rows()
-	if err == nil {
+	recentArts, _ := model.GetRecentArticleQuerys()
+	articleCates, _ := model.GetArticleCategoryQuerys()
+	articleArchs, _ := model.GetArticleArchiveQuerys()
 
-		var articles []*model.Article
-		for rows.Next() {
-			var article model.Article
-			model.DB.ScanRows(rows, &article)
-
-			if article.IsPublished {
-
-				user, _ := model.GetUserById(article.UserID)
-				cate, _ := model.GetCategoryById(article.CategoryID)
-
-				article.User = *user
-				article.Category = *cate
-				articles = append(articles, &article)
-			}
-		}
-		c.HTML(http.StatusOK, "auth/index.html", gin.H{
-			"Articles": articles,
-		})
-		return
-	}
-	defer rows.Close()
-
-	c.JSON(http.StatusOK, gin.H{
-		"succeed": false,
-		"message": err.Error(),
+	c.HTML(http.StatusOK, "client/index.html", gin.H{
+		"recentArts"	: recentArts,
+		"articleCates"	: articleCates,
+		"articleArchs"	: articleArchs,
 	})
 	return
 }
 
+func ArticleListGet(c *gin.Context) {
+
+	pageStr 		:= c.Query("page")
+	perPageStr 		:= c.Query("per_page")
+
+	pageInt, _ 		:= strconv.Atoi(pageStr)
+	perPageInt, _	:= strconv.Atoi(perPageStr)
+
+	offset 			:= pageInt * perPageInt
+
+	articleTotal 	:= model.GetArtileCount()
+	data 			:= model.GetArticleJsonData(perPageInt, offset)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status" : 0,
+		"data"	 : data,
+		"total"	 : articleTotal,
+	})
+	return
+}
+
+func ArticleCategoryGet(c *gin.Context) {
+	id				:= c.Param("id")
+	recentArts, _ 	:= model.GetRecentArticleQuerys()
+	articleCates, _ := model.GetArticleCategoryQuerys()
+	articleArchs, _ := model.GetArticleArchiveQuerys()
+
+	cateId, _ := strconv.Atoi(id)
+	newCateId := uint64(cateId)
+
+	cateArticles, err := model.GetArticleQuerysByCateId(newCateId)
+	if err == nil {
+
+		c.HTML(http.StatusOK, "client/category.html", gin.H{
+			"cateArticles"	: cateArticles,
+			"recentArts"	: recentArts,
+			"articleCates"	: articleCates,
+			"articleArchs"	: articleArchs,
+		})
+		return
+	}
+}
+
+
+func ArticleArchiveGet(c *gin.Context) {
+	yearMonth := c.Param("yearMonth")
+
+	year, err 	:= time.Parse("2006-01", yearMonth)
+	year_month 	:= year.Format("2006-01")
+
+	recentArts, _ 	:= model.GetRecentArticleQuerys()
+	articleCates, _ := model.GetArticleCategoryQuerys()
+	articleArchs, _ := model.GetArticleArchiveQuerys()
+
+	archArticles, err := model.GetArticleArchiveQuerysByTime(year_month)
+	if err == nil {
+		c.HTML(http.StatusOK, "client/archive.html", gin.H{
+			"archArticles"	: archArticles,
+			"recentArts"	: recentArts,
+			"articleCates"	: articleCates,
+			"articleArchs"	: articleArchs,
+		})
+		return
+	}
+}
+
+
+func ArticleDetailGet(c*gin.Context) {
+	id := c.Param("id")
+
+	article, _ 	:= model.GetArticleById(id)
+	recentArts, _ 	:= model.GetRecentArticleQuerys()
+	articleCates, _ := model.GetArticleCategoryQuerys()
+	articleArchs, _ := model.GetArticleArchiveQuerys()
+
+	article.ViewCount++
+	err := article.UpdateView()
+	if err == nil {
+		c.HTML(http.StatusOK, "client/detail.html", gin.H{
+			"recentArts"	: recentArts,
+			"articleCates"	: articleCates,
+			"articleArchs"	: articleArchs,
+			"artID"			: id,
+			"artTitle"		: article.Title,
+			"article"		: article,
+		})
+		return
+	}
+}
+
+
+func AjaxArticleDetailGet(c *gin.Context) {
+	id := c.Param("id")
+
+	article, err := model.GetArticleById(id)
+	if err == nil {
+		var markdown []string
+
+		markdown = append(markdown, article.Content)
+
+		c.String(http.StatusOK, article.Content)
+		return
+	}
+}
+
 
 func AdminArticleGet(c *gin.Context) {
-	if user, exists := c.Get("user"); exists {
-		userInter := user.(model.User)
-
-		fmt.Println("userID:", userInter.ID)
-		fmt.Println("userEmail:", userInter.Email)
+	if _, exists := c.Get("user"); exists {
 
 		id := c.Param("id")
-		article, _ := model.GetArticleById(id)
 
+		article, _ 	:= model.GetArticleById(id)
 		category, _ := model.GetCategoryById(article.CategoryID)
 
-		user, err := model.GetUserById(article.UserID)
-		if err == nil && article.IsPublished {
-			//article.IsPublished = !article.IsPublished
-			//err = article.Update()
+		user, err 	:= model.GetUserById(article.UserID)
+		if err == nil {
 			var comments []string
 
 			c.HTML(http.StatusOK, "post/display.html", gin.H{
-				"article": article,
-				"category": category,
-				"user": user,
-				"comments": comments,
+				"article"	: article,
+				"category"	: category,
+				"user"		: user,
+				"comments"	: comments,
 			})
 			return
 		}
-		fmt.Println(err)
+
 		c.HTML(http.StatusNotFound, "errors/error.html", gin.H{
 			"message": "Sorry,I lost myself!",
 		})
@@ -80,153 +160,107 @@ func AdminArticleGet(c *gin.Context) {
 }
 
 func AdminArticleIndex(c *gin.Context) {
-
 	if user, exists := c.Get("user"); exists {
 		userInter := user.(model.User)
-		fmt.Println("userID:", userInter.ID)
-		fmt.Println("userEmail:", userInter.Email)
 
 		var comments []string
 
 		// Find Article By UserId
-		var articles []*model.Article
-
-		//model.DB.Where("id = ?", userInter.ID).Find(&article)
-
-		rows, err := model.DB.Raw("select * from article where user_id = ?", userInter.ID).Rows()
-		if err != nil {
-			c.JSON(http.StatusOK, gin.H{
-				"succeed": false,
+		articles, err := model.GetArticleQuerysByUserId(userInter.ID)
+		if err == nil {
+			c.HTML(http.StatusOK, "admin/post.html", gin.H{
+				"articles"	: articles,
+				"Active"	: "posts",
+				"user"		: user,
+				"comments"	: comments,
 			})
 			return
+		} else {
+			err = errors.New("获取文章列表失败")
 		}
-		defer rows.Close()
-
-		for rows.Next() {
-			var article model.Article
-			model.DB.ScanRows(rows, &article)
-			articles = append(articles, &article)
-		}
-
-		c.HTML(http.StatusOK, "admin/post.html", gin.H{
-			"articles":    articles,
-			"Active":   "posts",
-			"user":     user,
-			"comments": comments,
+		c.JSON(http.StatusOK, gin.H{
+			"message": err.Error(),
 		})
 	}
-	/*
-	fmt.Println("username",c)
-	var comments []string
-	comments = append(comments, "nihao","haodehen")
-
-	var user model.User
-
-	err := model.DB.First(&user, "email = ?", "123@qq.com").Error
-	if err == nil {
-		c.HTML(http.StatusOK, "admin/post.html", gin.H{
-			"pageCount":    2,
-			"postCount":    3,
-			"tagCount":     1,
-			"commentCount": 5,
-			"user":         user,
-			"comments":     comments,
-		})
-	}*/
+	return
 }
 
-func AdminNewPostGet(c *gin.Context) {
-
+func AdminCreateArticleGet(c *gin.Context) {
 	if user, exists := c.Get("user"); exists {
-
-		userInter := user.(model.User)
-		fmt.Println("userID:", userInter.ID)
-		fmt.Println("userEmail:", userInter.Email)
 
 		var comments []string
+
 		c.HTML(http.StatusOK, "post/new.html", gin.H{
-			"user": user,
-			"comments": comments,
+			"user"		: user,
+			"comments"	: comments,
 		})
 	}
+	return
 }
 
-func AdminCreatePost(c *gin.Context) {
+func AdminCreateArticlePost(c *gin.Context) {
 	if user, exists := c.Get("user"); exists {
-
 		userInter := user.(model.User)
-		fmt.Println("userID:", userInter.ID)
-		fmt.Println("userEmail:", userInter.Email)
 
-
-		tags := c.PostForm("tags")
-		title := c.PostForm("title")
-		body := c.PostForm("body")
+		tags 		:= c.PostForm("tags")
+		title 		:= c.PostForm("title")
+		body 		:= c.PostForm("body")
 		isPublished := c.PostForm("isPublished")
-		published := "on" == isPublished
+		published 	:= "on" == isPublished
 
-		fmt.Println("title: ", title)
-		fmt.Println("tags: ", tags)
-		fmt.Println("pubisted: ", published)
-		fmt.Println("body: ", body)
+		tagList := strings.Split(tags, ",")
 
 		var desc string
+
 		if len(body) > 100 {
 			desc = body[:100]
 		} else {
 			desc = body
 		}
 
-		cateID, _ := strconv.ParseUint(tags, 10, 64)
+		cateID, _ := strconv.ParseUint(tagList[0], 10, 64)
 
 		article := model.Article{
-			Title: title,
-			Desc: desc,
-			Content: body,
-			UserID: userInter.ID,
-			CategoryID: cateID,
-			IsPublished: published,
+			Title		: title,
+			Desc		: desc,
+			Content		: body,
+			UserID		: userInter.ID,
+			ViewCount	: 0,
+			CommentCount: 0,
+			CategoryID	: cateID,
+			IsPublished	: published,
 		}
 
 		err := article.Insert()
 		if err == nil {
-			c.Redirect(http.StatusMovedPermanently, "/admin/post")
+			c.Redirect(http.StatusMovedPermanently, "/admin/article")
 		} else {
 			c.HTML(http.StatusOK, "post/new.html", gin.H{
-				"article":    article,
+				"article": article,
 				"message": err.Error(),
 			})
 		}
 	}
+	return
 }
 
 
 func AdminEditGET(c *gin.Context) {
-
 	if user, exists := c.Get("user"); exists {
-
-		userInter := user.(model.User)
-		fmt.Println("userID:", userInter.ID)
-		fmt.Println("userEmail:", userInter.Email)
-
 		id := c.Param("id")
 
-		fmt.Println("id:", id)
-
-		var article model.Article
-		err := model.DB.Where("id = ?", id).First(&article).Error
-		if err == nil {
-
+		if article, err := model.GetArticleById(id); err == nil {
 			var comments []string
-			fmt.Println("cateID:", article.CategoryID)
+
 			//Find Article Category
-			err := model.DB.Where("id = ?", article.CategoryID).First(&article.Category).Error
-			if err == nil {
-				fmt.Println("cateName:", article.Category.Name)
+			if category, err := model.GetCategoryById(article.CategoryID); err == nil {
+
+				article.Category = *category
+
 				c.HTML(http.StatusOK, "post/modify.html", gin.H{
-					"user": user,
-					"article": article,
-					"comments": comments,
+					"user"		: user,
+					"article"	: article,
+					"comments"	: comments,
 				})
 				return
 			}
@@ -239,34 +273,40 @@ func AdminEditGET(c *gin.Context) {
 }
 
 func AdminUpdateArticle(c *gin.Context) {
-	if user, exists := c.Get("user");exists {
-		userInter := user.(model.User)
+	if _, exists := c.Get("user");exists {
 
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
-
-		id := c.Param("id")
-		cateId := c.PostForm("tags")
-		title := c.PostForm("title")
-		content := c.PostForm("body")
+		id 			:= c.Param("id")
+		cateId 		:= c.PostForm("tags")
+		title 		:= c.PostForm("title")
+		content 	:= c.PostForm("body")
 		isPublished := c.PostForm("isPublished")
 
-		published := "on" == isPublished
+		published 	:= "on" == isPublished
+
+		var desc string
+
+		if len(content) > 100 {
+			desc = content[:100]
+		} else {
+			desc = content
+		}
 
 		cateID, _ := strconv.ParseUint(cateId, 10, 64)
+
 		pid, err := strconv.ParseUint(id, 10, 64)
 		if err == nil {
 			article := &model.Article{
-				Title: title,
-				Content:content,
-				CategoryID: cateID,
-				IsPublished: published,
+				Title		: title,
+				Desc		:desc,
+				Content		:content,
+				CategoryID	: cateID,
+				IsPublished	: published,
 			}
 			article.ID = pid
 
 			err = article.Update()
 			if err == nil {
-				c.Redirect(http.StatusMovedPermanently, "/admin/post")
+				c.Redirect(http.StatusMovedPermanently, "/admin/article")
 				return
 			} else {
 				c.HTML(http.StatusOK, "post/modify.html", gin.H{
@@ -283,28 +323,25 @@ func AdminUpdateArticle(c *gin.Context) {
 	return
 }
 
-func AdminArticleDelete(c *gin.Context) {
-	id := c.Param("id")
+func AdminDeleteArticle(c *gin.Context) {
+
 	var err error
-	articleID, err := strconv.ParseUint(id, 10, 64)
-	if err == nil {
-		var article model.Article
-		err := model.DB.Where("id = ?", articleID).First(&article).Error
+
+	id := c.Param("id")
+
+	if article, err := model.GetArticleById(id); err == nil {
+
+		err := article.Delete()
 		if err == nil {
-			err := article.Delete()
-			if err == nil {
-				c.JSON(http.StatusOK, gin.H{
-					"succeed": true,
-				})
-				return
-			} else {
-				err = errors.New("删除文章失败")
-			}
+			c.JSON(http.StatusOK, gin.H{
+				"succeed": true,
+			})
+			return
 		} else {
-			err = errors.New("获取文章失败")
+			err = errors.New("删除文章失败")
 		}
 	} else {
-		err = errors.New("获取文章ID失败")
+		err = errors.New("获取文章失败")
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -314,13 +351,8 @@ func AdminArticleDelete(c *gin.Context) {
 	return
 }
 
-func AdminArticlePublish(c *gin.Context) {
-	if user, exists := c.Get("user"); exists {
-
-		userInter := user.(model.User)
-
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
+func AdminPublishArticle(c *gin.Context) {
+	if _, exists := c.Get("user"); exists {
 
 		id := c.Param("id")
 		article, err := model.GetArticleById(id)
@@ -334,3 +366,5 @@ func AdminArticlePublish(c *gin.Context) {
 		})
 	}
 }
+
+

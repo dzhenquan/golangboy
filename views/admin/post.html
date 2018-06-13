@@ -43,7 +43,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
         <h1>
-            <small>博文管理<a class="btn btn-primary" href="/admin/new_post" target="_blank"><span class="glyphicon glyphicon-plus"></span>新增</a></small>
+            <small>博文管理<a class="label label-success" href="/admin/new_article"><span class="glyphicon glyphicon-plus"></span>新增</a></small>
         </h1>
         <ol class="breadcrumb">
             <li><a href="/admin/index"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -66,6 +66,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>标题</th>
+                                <th>分类</th>
                                 <th>公开</th>
                                 <th>创建时间</th>
                                 <th>更新时间</th>
@@ -76,14 +77,20 @@
                             {{range .articles}}
                             <tr>
                                 <td>{{.ID}}</td>
-                                <td><a href="/article/{{.ID}}" target="_blank">{{.Title}}</a></td>
+                                <td><a href="/admin/article/{{.ID}}">{{.Title}}</a></td>
+                                <td><a href="/admin/category/{{.Category.ID}}">{{.Category.Name}}</a></td>
                                 <td>
-                                    <a href="javascript:void(0);" onclick="pushlish('{{.ID}}')"> {{if .IsPublished}}√{{else}}×{{end}}</a>
+                                {{if not .IsPublished}}
+                                    <a href="javascript:void(0);" class="label label-danger" onclick="pushlish('{{.ID}}')">NO</a>
+                                {{else}}
+                                    <a href="javascript:void(0);" class="label label-success" onclick="pushlish('{{.ID}}')">YES</a>
+                                {{end}}
+                                    {{/*<a href="javascript:void(0);" onclick="pushlish('{{.ID}}')"> {{if .IsPublished}}√{{else}}×{{end}}</a>*/}}
                                 </td>
                                 <td>{{dateFormat .CreatedAt "06-01-02 15:04"}}</td>
                                 <td>{{dateFormat .UpdatedAt "06-01-02 15:04"}}</td>
-                                <td><a href="/admin/post/{{.ID}}/edit" target="_blank" class="btn btn-primary">编辑</a>
-                                    <a href="#" class="btn btn-danger" data-href="/admin/post/{{.ID}}/delete" data-toggle="modal" data-target="#confirm-delete">删除</a>
+                                <td><a href="/admin/article/{{.ID}}/edit" class="label label-success">编辑</a>
+                                    <a href="#" class="label label-danger" data-href="/admin/article/{{.ID}}/delete" data-toggle="modal" data-target="#confirm-delete">删除</a>
                                 </td>
                             </tr>
                             {{end}}
@@ -145,7 +152,7 @@
     });
 
     function pushlish(id){
-        $.post("/admin/post/"+id+"/publish",{},function(result){
+        $.post("/admin/article/"+id+"/publish",{},function(result){
             console.log(result);
             if(result.succeed){
                 window.location.href = window.location.href;
@@ -158,7 +165,6 @@
             $.post($(e.relatedTarget).data('href'),{},function(reuslt){
                 window.location.href = window.location.href;
             },'json');
-
         });
     });
 </script>

@@ -1,43 +1,40 @@
 package link
 
 import (
-	"github.com/gin-gonic/gin"
-	"gin-blog/model"
-	"fmt"
-	"net/http"
 	"strconv"
+	"net/http"
+	"github.com/gin-gonic/gin"
+	"github.com/dzhenquan/golangboy/model"
+	"errors"
 )
 
 func AdminLinkIndex(c *gin.Context) {
 
+	var err error
+
 	if user, exists := c.Get("user"); exists {
 		userInter := user.(model.User)
 
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
-
 		var comments []string
-		comments = append(comments, "nihao", "wohao", "henhao")
 
-		rows, err := model.DB.Raw("select * from link where user_id = ?", userInter.ID).Rows()
-		defer rows.Close()
-
+		links, err := model.GetLinkQuerysByUserID(userInter.ID)
 		if err == nil {
-			var link model.Link
-			var links []*model.Link
-
-			for rows.Next() {
-				model.DB.ScanRows(rows, &link)
-				links = append(links, &link)
-			}
 			c.HTML(http.StatusOK, "admin/link.html", gin.H{
-				"links": links,
-				"user": user,
-				"comments": comments,
+				"links"		: links,
+				"user"		: user,
+				"comments"	: comments,
 			})
 			return
+		} else {
+			err = errors.New("查看链接失败")
 		}
+	} else {
+		err = errors.New("用户不存在")
 	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":err.Error(),
+	})
 }
 
 func AdminLinkCreate(c *gin.Context) {
@@ -45,9 +42,6 @@ func AdminLinkCreate(c *gin.Context) {
 	if user, exists := c.Get("user"); exists {
 
 		userInter := user.(model.User)
-
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
 
 		name := c.PostForm("name")
 		url := c.PostForm("url")
@@ -62,10 +56,10 @@ func AdminLinkCreate(c *gin.Context) {
 			_sort, err := strconv.ParseUint(sort, 10, 64)
 			if err == nil {
 				link := &model.Link{
-					Name: name,
-					Url: url,
-					UserID: userInter.ID,
-					Sort: int(_sort),
+					Name	: name,
+					Url		: url,
+					UserID	: userInter.ID,
+					Sort	: int(_sort),
 				}
 				err = link.Insert()
 			}
@@ -78,12 +72,7 @@ func AdminLinkCreate(c *gin.Context) {
 
 func AdminLinkUpdate(c *gin.Context) {
 
-	if user, exists := c.Get("user"); exists {
-
-		userInter := user.(model.User)
-
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
+	if _, exists := c.Get("user"); exists {
 
 		id := c.Param("id")
 		name := c.PostForm("name")
@@ -118,12 +107,7 @@ func AdminLinkUpdate(c *gin.Context) {
 
 func AdminLinkDelete(c *gin.Context) {
 
-	if user, exists := c.Get("user"); exists {
-
-		userInter := user.(model.User)
-
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
+	if _, exists := c.Get("user"); exists {
 
 		id := c.Param("id")
 
@@ -134,11 +118,12 @@ func AdminLinkDelete(c *gin.Context) {
 			link.ID = _id
 
 			err = link.Delete()
-		}
-		if err == nil {
-			c.JSON(http.StatusOK, gin.H{
-				"succeed": true,
-			})
+			if err == nil {
+
+				c.JSON(http.StatusOK, gin.H{
+					"succeed": true,
+				})
+			}
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"succeed": false,

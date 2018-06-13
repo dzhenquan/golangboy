@@ -1,0 +1,54 @@
+{{define "client/footer.html"}}
+
+<footer class="footer  clearfix">
+    <div class="container">
+        <div class="row">
+            <div class="footer-content col-sm-12">
+                <span class="col-sm-9">
+                    代振全博客 版权所有，保留一切权利 !  © 2017-2018 · xxxx · 托管于 腾讯云
+                </span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="/static/libs/jquery/jquery.js"></script>
+<script src="/static/libs/bootstrap/js/bootstrap.js"></script>
+
+<script type="text/javascript">
+    /**
+     * 添加下拉菜单点击事件
+     * */
+    $("li.nav-hover").mouseenter(function (event) {
+        $(this).addClass("open");
+    }).mouseleave(function (event) {
+        $(this).removeClass("open");
+    });
+
+    /***
+     *
+     * 设置轮播器自动播放
+     * */
+    $("#proCarousel").carousel('cycle');//
+
+    /**
+     *
+     * 添加微信，QQ二维码弹出处理
+     * */
+    $('#weixin').popover({
+        trigger: 'hover',//鼠标以上时触发弹出提示框
+        html: true,//开启html 为true的话，data-content里就能放html代码了
+        content: "<img src='/static/img/root/weixinrcode.png' style='width: 150px; height: 150px'>"
+    });
+    $('#qq').popover({
+        trigger: 'hover',
+        html: true,
+        content: "<img src='/static/img/root/qqrcode.png' style='width: 150px; height: 150px;'>"
+    });
+
+    $("#login").click(function() {
+        alert("暂未开放,敬请期待");
+    });
+
+</script>
+{{end}}

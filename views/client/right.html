@@ -1,0 +1,91 @@
+{{define "client/right.html"}}
+
+<div id="sidebar" class="col-sm-3">
+    <div class="blogger-info box">
+        <div class="avatar col-sm-12">
+            <img class="img-circle img-thumbnail img-responsive center-block"
+                 src="/static/img/root/touxiang.jpg" alt="头像"/>
+        </div>
+        <h3 class="blogger-name">
+            <a>代振全</a>
+        </h3>
+        <h4 class="blogger-work">
+            Golang开发工程师
+        </h4>
+
+        <ul class="communication-list">
+            <li class="weixin">
+                <!--<a id="app" style="background-image:url('app.png')" class="btn" data-toggle="popover" data-placement="bottom"></a>-->
+                <a id="weixin" title="微信" href="#" target="_blank" data-toggle="popover"
+                   data-placement="bottom">
+                    <img class="img-circle" src="/static/img/root/weixin.png" alt="微信二维码"/>
+                </a>
+            </li>
+            <li class="qq">
+                <a id="qq" title="QQ" href="#" data-toggle="popover" data-placement="bottom">
+                    <img class="img-circle" src="/static/img/root/qq.png" alt="QQ二维码"/>
+                </a>
+            </li>
+            <li class="csdn">
+                <a title="csdn" href="https://blog.csdn.net/u013930856" target="blank">
+                    <img class="img-circle" src="/static/img/root/csdn.png" alt="csdn地址"/>
+                </a>
+            </li>
+            <li class="github">
+                <a title="github" href="https://github.com/dzhenquan" target="_blank">
+                    <img class="img-circle" src="/static/img/root/github.png" alt="github地址"/>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="article-archiving box clearfix" id="article-zj">
+        <h3 class="page-header">
+            最近文章
+        </h3>
+        <ul>
+        {{range .recentArts}}
+            <li>
+                <a href="/article/detail/{{.ID}}">
+                    <span class="arch-name">{{.Title}}</span>
+                {{/*<span class="article-count">10篇</span>*/}}
+                </a>
+            </li>
+        {{end}}
+        </ul>
+        <a class="more hidden" id="gdBoxDown"><span>展开</span><b class="caret"></b></a>
+    </div>
+    <div class="article-archiving box clearfix" id="article-fl">
+        <h3 class="page-header">
+            文章分类
+        </h3>
+        <ul>
+        {{range .articleCates}}
+            <li>
+                <a href="/article/category/{{.CateID}}">
+                    <span class="arch-name">{{.CateName}}</span>
+                    <span class="article-count">{{.CateCount}} 篇</span>
+                </a>
+            </li>
+        {{end}}
+        </ul>
+        <a class="more hidden" id="flBoxDown"><span>展开</span><b class="caret"></b></a>
+    </div>
+
+    <div class="article-archiving box clearfix" id="article-gd">
+        <h3 class="page-header">
+            文章归档
+        </h3>
+        <ul>
+        {{range .articleArchs}}
+            <li>
+                <a href="/article/archive/{{.Year}}-{{.Month}}">
+                    <span class="arch-name">{{.Year}}年{{.Month}}月</span>
+                    <span class="article-count">{{len .Articles}} 篇</span>
+                </a>
+            </li>
+        {{end}}
+        </ul>
+        <a class="more hidden" id="gdBoxDown"><span>展开</span><b class="caret"></b></a>
+    </div>
+</div>
+{{end}}

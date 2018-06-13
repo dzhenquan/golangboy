@@ -1,29 +1,56 @@
 package page
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
-	"gin-blog/model"
-	"fmt"
 	"strconv"
+	"net/http"
+	"github.com/gin-gonic/gin"
+	"github.com/dzhenquan/golangboy/model"
 )
 
+
+
+func PageAboutMeGet(c *gin.Context) {
+
+	page, err 	:= model.GetPageById("1")
+	recentArts, _ 	:= model.GetRecentArticleQuerys()
+	articleCates, _ := model.GetArticleCategoryQuerys()
+	articleArchs, _ := model.GetArticleArchiveQuerys()
+
+	if err == nil {
+		c.HTML(http.StatusOK, "client/about.html", gin.H{
+			"recentArts"	: recentArts,
+			"articleCates"	: articleCates,
+			"articleArchs"	: articleArchs,
+			"artID"			: page.ID,
+			"artTitle"		: page.Title,
+			"article"		: page,
+		})
+		return
+	}
+}
+
+func AjaxPageDetailGet(c *gin.Context) {
+	id := c.Param("id")
+
+	page, err := model.GetPageById(id)
+	if err == nil {
+		var markdown []string
+
+		markdown = append(markdown, page.Content)
+
+		c.String(http.StatusOK, page.Content)
+		return
+	}
+}
 
 func AdminPageGet(c *gin.Context) {
 
 	if user, exists := c.Get("user"); exists {
 
-		userInter := user.(model.User)
-
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
-
 		id := c.Param("id")
 
 		page, err := model.GetPageById(id)
-		if err == nil && page.IsPublished {
-			page.View++
-
+		if err == nil {
 			var comments []string
 			c.HTML(http.StatusOK, "page/display.html", gin.H{
 				"user": user,
@@ -37,16 +64,12 @@ func AdminPageGet(c *gin.Context) {
 			})
 		}
 	}
+	return
 }
 
 func AdminCreatePageGet(c *gin.Context) {
 
 	if user, exists := c.Get("user"); exists {
-
-		userInter := user.(model.User)
-
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail:", userInter.Email)
 
 		var comments []string
 		c.HTML(http.StatusOK, "page/new.html", gin.H{
@@ -54,6 +77,7 @@ func AdminCreatePageGet(c *gin.Context) {
 			"comments": comments,
 		})
 	}
+	return
 }
 
 func AdminPageIndex(c *gin.Context) {
@@ -62,22 +86,10 @@ func AdminPageIndex(c *gin.Context) {
 
 		userInter := user.(model.User)
 
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
 		var comments []string
 
-		rows, err := model.DB.Raw("select * from page where user_id = ?", userInter.ID).Rows()
-		defer rows.Close()
-
+		pages, err := model.GetPageQuerysByUserId(userInter.ID)
 		if err == nil {
-			var pages []*model.Page
-
-			for rows.Next() {
-				var page model.Page
-
-				model.DB.ScanRows(rows, &page)
-				pages = append(pages, &page)
-			}
 			c.HTML(http.StatusOK, "admin/page.html", gin.H{
 				"pages": pages,
 				"user": user,
@@ -85,16 +97,18 @@ func AdminPageIndex(c *gin.Context) {
 			})
 			return
 		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": err.Error(),
+		})
 	}
+	return
 }
 
-func AdminCreatePage(c *gin.Context) {
+func AdminCreatePagePost(c *gin.Context) {
 
 	if user, exists := c.Get("user"); exists {
 		userInter := user.(model.User)
-
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
 
 		title := c.PostForm("title")
 		content := c.PostForm("body")
@@ -119,16 +133,11 @@ func AdminCreatePage(c *gin.Context) {
 			})
 		}
 	}
-
-
+	return
 }
 
 func AdminEditPage(c *gin.Context) {
 	if user, exists := c.Get("user"); exists {
-		userInter := user.(model.User)
-
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
 
 		id := c.Param("id")
 		page, err := model.GetPageById(id)
@@ -150,19 +159,13 @@ func AdminEditPage(c *gin.Context) {
 }
 
 func AdminUpdatePage(c *gin.Context) {
-	if user, exists := c.Get("user"); exists {
-		userInter := user.(model.User)
-
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
+	if _, exists := c.Get("user"); exists {
 
 		id := c.Param("id")
 		title := c.PostForm("title")
 		content := c.PostForm("body")
 		isPublished := c.PostForm("isPublished")
 		published := "on" == isPublished
-
-		fmt.Println("content:", content)
 
 		pid, err := strconv.ParseUint(id, 10, 64)
 		if err == nil {
@@ -184,11 +187,7 @@ func AdminUpdatePage(c *gin.Context) {
 }
 
 func AdminPublishPage(c *gin.Context) {
-	if user, exists := c.Get("user"); exists {
-		userInter := user.(model.User)
-
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
+	if _, exists := c.Get("user"); exists {
 
 		id := c.Param("id")
 		page, err := model.GetPageById(id)
@@ -201,14 +200,11 @@ func AdminPublishPage(c *gin.Context) {
 			"succeed": err == nil,
 		})
 	}
+	return
 }
 
 func AdminDeletePage(c *gin.Context) {
-	if user, exists := c.Get("user"); exists {
-		userInter := user.(model.User)
-
-		fmt.Println("userID: ", userInter.ID)
-		fmt.Println("userEmail: ", userInter.Email)
+	if _, exists := c.Get("user"); exists {
 
 		id := c.Param("id")
 		pageID, err := strconv.ParseUint(id, 10, 64)
@@ -224,4 +220,5 @@ func AdminDeletePage(c *gin.Context) {
 			}
 		}
 	}
+	return
 }
