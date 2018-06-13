@@ -60,8 +60,6 @@ func AdminCreateCategory(c *gin.Context) {
 
 		cateName := c.PostForm("value")
 
-		fmt.Println("cateName: ", cateName)
-
 		// Find Category
 		if findCate, err := model.GetCategoryByName(cateName); err == nil {
 			c.JSON(http.StatusOK, gin.H{

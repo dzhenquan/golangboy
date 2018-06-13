@@ -130,6 +130,25 @@ func AjaxArticleDetailGet(c *gin.Context) {
 	}
 }
 
+func ArticleSearchPost(c *gin.Context) {
+	keyword			:= c.PostForm("keyword")
+	recentArts, _ 	:= model.GetRecentArticleQuerys()
+	articleCates, _ := model.GetArticleCategoryQuerys()
+	articleArchs, _ := model.GetArticleArchiveQuerys()
+
+	searchArts, err := model.GetArticlesByKeyword(keyword)
+	if err != nil {
+		searchArts = nil
+	}
+	c.HTML(http.StatusOK, "client/search.html", gin.H{
+		"searchArts"	: searchArts,
+		"recentArts"	: recentArts,
+		"articleCates"	: articleCates,
+		"articleArchs"	: articleArchs,
+	})
+	return
+}
+
 
 func AdminArticleGet(c *gin.Context) {
 	if _, exists := c.Get("user"); exists {

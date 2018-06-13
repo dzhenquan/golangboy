@@ -51,6 +51,7 @@ func Route(router *gin.Engine) {
 		api.GET("/about/detail/:id", page.AjaxPageDetailGet)
 
 		api.GET("/article/list", article.ArticleListGet)
+		api.POST("/article/search", article.ArticleSearchPost)
 		api.GET("/article/category/:id", article.ArticleCategoryGet)
 		api.GET("/article/archive/:yearMonth", article.ArticleArchiveGet)
 

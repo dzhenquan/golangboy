@@ -1,0 +1,143 @@
+{{define "client/search.html"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=11,IE=10,IE=9,IE=8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="xxxxx">
+    <meta name="kewords" content="Python,Js,HTML....">
+    <title>GolangBoy | 文章搜索</title>
+    <meta name="apple-mobile-web-app-title" content="个人博客网站">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+
+    <!--
+    设置icon
+    <link rel="shortcut icon" href="http://static.html580.com/assets/images/favicon.ico">
+    -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="个人博客网站">
+    <!--<link rel="apple-touch-icon-precomposed" href="http://static.html580.com/assets/images/favicon.ico">-->
+
+    <link href="/static/libs/bootstrap/css/bootstrap.css" rel="stylesheet"
+          type="text/css">
+    <link href="/static/css/site.css" rel="stylesheet" type="text/css">
+    <link href="/static/libs/font-awesome/css/font-awesome.css" rel="stylesheet"
+          type="text/css">
+
+    <link href='http://cdn.webfont.youziku.com/webfonts/nomal/114961/45913/5a9ea137f629d80374f74a27.css'
+          rel='stylesheet' type='text/css'/>
+</head>
+<body>
+
+{{template "client/navbar.html" .}}
+<!--博客导航结束-->
+
+<div class="main">
+    <div class="container">
+        <div class="row ">
+            <div id="content" class="col-sm-9">
+                <!--</div>-->
+                <div class="last-article box">
+                    <h3 class="page-header">
+                        相关文章
+                    </h3>
+                    <div class="article-list">
+                        {{range .searchArts}}
+                        <article>
+                            <header>
+                                <a class="cat">{{.Category}}<i></i></a>
+                                <h2>
+                                    <a href="/article/detail/{{.ArticleID}}">{{.Title}}</a>
+                                </h2>
+                            </header>
+                            <a class="note"> {{.Desc}}</a>
+                            <p class="auth-span">
+                                <span class="muted">
+                                    <span class="icon-calendar"></span>
+                                    {{.CreateTime}}
+                                </span>
+                                <span class="muted">
+                                    <span class="icon-eye-open"></span>
+                                    {{.ReadCount}}次查看
+                                </span>
+                                <span class="muted">
+                                    <span class="icon-comments-alt"></span>
+                                    <a target="_blank" href="#">
+                                        {{.CommentCount}}条评论
+                                    </a>
+                                </span>
+                            </p>
+                        </article>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+
+        {{template "client/right.html" .}}
+        </div>
+    </div>
+</div>
+
+{{template "client/footer.html" .}}
+
+<script type="text/javascript">
+    $(function () {
+        var gdLiCount = $("#article-gd ul li").length;
+        if (gdLiCount > 9) {
+            $('#gdBoxDown').removeClass('hidden');
+            var a = $("#article-gd ul li:gt(9)");
+            a.hide();
+            $("#gdBoxDown").click(function () {
+                if (a.is(':visible')) {
+                    a.slideUp('fast');
+                    $(this).removeClass('up');
+                    $('#gdBoxDown span').text('展开');
+                    $('#gdBoxDown  b').removeClass('caret-down');
+                    $('#gdBoxDown  b').addClass('caret');
+
+
+                } else {
+                    a.slideDown('fast').show();
+                    $(this).addClass('up');
+                    $('#gdBoxDown span').text('收起');
+                    $('#gdBoxDown  b').removeClass('caret');
+                    $('#gdBoxDown  b').addClass('caret-down');
+                }
+            });
+        }
+
+    });
+    $(function () {
+        var flLiCount = $("#article-fl ul li").length;
+
+        if (flLiCount > 10) {
+            $('#flBoxDown').removeClass('hidden');
+            var a = $("#article-fl ul li:gt(9)");
+            a.hide();
+            $("#flBoxDown").click(function () {
+                if (a.is(':visible')) {
+                    a.slideUp('fast');
+                    $(this).removeClass('up');
+                    $('#flBoxDown span').text('展开');
+                    $('#flBoxDown  b').removeClass('caret-down');
+                    $('#flBoxDown  b').addClass('caret');
+                } else {
+                    a.slideDown('fast').show();
+                    $(this).addClass('up');
+                    $('#flBoxDown span').text('收起');
+                    $('#flBoxDown  b').removeClass('caret');
+                    $('#flBoxDown  b').addClass('caret-down');
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
+{{end}}

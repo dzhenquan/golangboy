@@ -256,6 +256,47 @@ func GetArticleQuerysByCateId(cateId uint64) ([]*ArticleData, error){
 	return articles, nil
 }
 
+func GetArticlesByKeyword(keyword string) ([]*ArticleData, error) {
+
+	var articles []*ArticleData
+
+	sql := fmt.Sprintf("select * from article where LOCATE('%s',`title`) " +
+		"ORDER BY created_at desc;", keyword)
+
+	rows, err := DB.Raw(sql).Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var article Article
+
+		err := DB.ScanRows(rows, &article)
+		if err != nil {
+			return nil, err
+		}
+
+		createTime := article.CreatedAt.Format(("2006-01-02 15:04"))
+		cate, err := GetCategoryById(article.CategoryID)
+		if err != nil {
+			return nil, err
+		}
+		articleData := &ArticleData{
+			Title			:	article.Title,
+			ReadCount		:	article.ViewCount,
+			ArticleID		:	article.ID,
+			CommentCount	:	article.CommentCount,
+			Desc			:	article.Desc,
+			Category		:	cate.Name,
+			CreateTime		:	createTime,
+		}
+
+		articles = append(articles, articleData)
+	}
+	return articles, nil
+}
+
 func GetRecentArticleQuerys() ([]*Article, error) {
 
 	var articles []*Article
