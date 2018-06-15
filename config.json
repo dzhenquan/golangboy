@@ -22,7 +22,7 @@
     "SiteName"            : "",      /*网站名称*/
     "Host"                : "",  /*网站域名*/
     "ImgHost"             : "",  /*图片服务器域名*/
-    "Env"                 : "production",        /*模式(开发，测试，产品)*/
+    "Env"                 : "development",        /*模式(开发，测试，产品)*/
     "LogDir"              : "", /*日志文件所在的目录，如果不设的话，默认在项目目录下*/
     "LogFile"             : "golangboy.log", /*日志文件*/
     "APIPrefix"           : "/api", /*api服务请求前缀*/

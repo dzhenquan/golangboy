@@ -10,27 +10,39 @@
     <meta name="kewords" content="Python,Js,HTML....">
     <title>GolangBoy | {{.artTitle}}</title>
     <meta name="apple-mobile-web-app-title" content="个人博客网站">
-    <meta name="description" content="">
-    <meta name="keywords" content="">
-
-    <!--
-    设置icon
-    <link rel="shortcut icon" href="http://static.html580.com/assets/images/favicon.ico">
-    -->
+    <meta name="description" content="{{.artTitle}}">
+    <meta name="keywords" content="{{.artTitle}}">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="个人博客网站">
-    <!--<link rel="apple-touch-icon-precomposed" href="http://static.html580.com/assets/images/favicon.ico">-->
 
     <link href="/static/libs/bootstrap/css/bootstrap.css" rel="stylesheet"
           type="text/css">
     <link href="/static/css/site.css" rel="stylesheet" type="text/css">
     <link href="/static/libs/font-awesome/css/font-awesome.css" rel="stylesheet"
           type="text/css">
-    <link rel="stylesheet" href="/static/libs/editor-md/css/editormd.css">
 
-    <link rel="stylesheet" href="/static/libs/editor-md/css/editormd.preview.css"/>
+    <!-- simplemde -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css" />
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
+    <!-- github markdown css -->
+    <link rel="stylesheet" href="/static/css/markdown.css" />
+
+    <!-- markdown parse -->
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@8.3.1/dist/markdown-it.js"></script>
+
+    <!-- code syntax highlighting -->
+    <!--
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/styles/monokai.min.css">
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.12.0/build/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    -->
+    <!--
+    <link href='http://cdn.webfont.youziku.com/webfonts/nomal/118549/46909/5b1cf654f629dc014451a748.css'
+          rel='stylesheet' type='text/css' />
+          -->
 
 </head>
 <body>
@@ -38,19 +50,19 @@
 {{template "client/navbar.html" .}}
 <!--博客导航结束-->
 
-
 <div class="main">
     <div class="container">
         <div class="row">
 
             <div id="content" class="col-sm-9 box1">
                 <div class="article-details-title">
-                    <h3>{{.artTitle}}</h3>
+                    <h3>{{.article.Title}}</h3>
                 </div>
-                <div class="article-details-body">
-                    <div id="editormd-view">
-                        <textarea style="display:none;" name="editormd-markdown-doc"></textarea>
-                    </div>
+                <div class="article-details-body" style="background-color: white;">
+                    <article class="markdown-body" style="padding: 15px;">
+                        <!-- page content-->
+                        <div id="body">{{.article.Content}}</div>
+                    </article>
                 </div>
             </div>
 
@@ -60,16 +72,6 @@
 </div>
 
 {{template "client/footer.html" .}}
-
-<script src="/static/libs/editor-md/lib/marked.min.js"></script>
-<script src="/static/libs/editor-md/lib/prettify.min.js"></script>
-
-<script src="/static/libs/editor-md/lib/raphael.min.js"></script>
-<script src="/static/libs/editor-md/lib/underscore.min.js"></script>
-<script src="/static/libs/editor-md/lib/sequence-diagram.min.js"></script>
-<script src="/static/libs/editor-md/lib/flowchart.min.js"></script>
-<script src="/static/libs/editor-md/lib/jquery.flowchart.min.js"></script>
-<script src="/static/libs/editor-md/editormd.js"></script>
 
 <script type="text/javascript">
     $(function () {
@@ -85,8 +87,6 @@
                     $('#gdBoxDown span').text('展开');
                     $('#gdBoxDown  b').removeClass('caret-down');
                     $('#gdBoxDown  b').addClass('caret');
-
-
                 } else {
                     a.slideDown('fast').show();
                     $(this).addClass('up');
@@ -96,7 +96,6 @@
                 }
             });
         }
-
     });
     $(function () {
         var flLiCount = $("#article-fl ul li").length;
@@ -125,18 +124,11 @@
 </script>
 
 <script>
-    $.get("/about/detail/{{.artID}}", function (markdown) {
-
-        testEditormdView = editormd.markdownToHTML("editormd-view", {
-            markdown: markdown,//+ "\r\n" + $("#append-test").text(),
-            htmlDecode: "style,script,iframe",  // you can filter tags decode
-            tocm: true,    // Using [TOCM]
-            emoji: true,
-            taskList: true,
-            tex: true,  // 默认不解析
-            flowChart: true,  // 默认不解析
-            sequenceDiagram: true  // 默认不解析
-        });
+    $(document).ready(function () {
+        // markdown parse
+        var md = window.markdownit();
+        var result = md.render($("#body").text());
+        $("#body").html(result);
     });
 </script>
 
